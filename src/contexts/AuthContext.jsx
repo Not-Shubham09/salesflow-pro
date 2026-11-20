@@ -20,7 +20,11 @@ export function AuthProvider({ children }) {
         setLoading(true);
         setAuthError(null);
 
-        const sessionResult = await authService.getSession();
+        const sessionPromise = authService.getSession();
+        const timeoutPromise = new Promise((resolve) => 
+          setTimeout(() => resolve({ success: true, data: { session: null } }), 2000)
+        );
+        const sessionResult = await Promise.race([sessionPromise, timeoutPromise]);
 
         if (
           sessionResult?.success &&

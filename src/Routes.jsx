@@ -16,13 +16,6 @@ import NotFound from "pages/NotFound";
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/login');
-    }
-  }, [user, loading, navigate]);
 
   if (loading) {
     return (
@@ -33,7 +26,7 @@ const ProtectedRoute = ({ children }) => {
   }
 
   if (!user) {
-    return null;
+    return <Navigate to="/login" replace />;
   }
 
   return children;
