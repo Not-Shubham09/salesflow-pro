@@ -35,7 +35,8 @@
     "build": "vite build --sourcemap",
     "serve": "vite preview",
     "test": "node scripts/verify-crm-crud.mjs",
-    "test:crm": "node scripts/verify-crm-crud.mjs"
+    "test:crm": "node scripts/verify-crm-crud.mjs",
+    "test:live": "node scripts/verify-supabase-live.mjs"
   },
   "eslintConfig": {
     "extends": [

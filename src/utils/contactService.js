@@ -82,9 +82,34 @@ class ContactService {
     }
 
     try {
+      let dataToInsert = { ...contactData };
+      if (!dataToInsert.user_id) {
+        const { data: userData } = await supabase.auth.getUser();
+        if (userData?.user?.id) {
+          dataToInsert.user_id = userData.user.id;
+        }
+      }
+      if (dataToInsert.name && !dataToInsert.first_name) {
+        const parts = dataToInsert.name.trim().split(' ');
+        dataToInsert.first_name = parts[0] || '';
+        dataToInsert.last_name = parts.slice(1).join(' ') || '';
+        delete dataToInsert.name;
+      }
+      if (dataToInsert.job_title && !dataToInsert.position) {
+        dataToInsert.position = dataToInsert.job_title;
+        delete dataToInsert.job_title;
+      }
+      if (dataToInsert.owner_id) {
+        if (!dataToInsert.user_id) dataToInsert.user_id = dataToInsert.owner_id;
+        delete dataToInsert.owner_id;
+      }
+      if (dataToInsert.lifecycle_stage) {
+        delete dataToInsert.lifecycle_stage;
+      }
+
       const { data, error } = await supabase
         .from('contacts')
-        .insert([contactData])
+        .insert([dataToInsert])
         .select()
         .single();
 

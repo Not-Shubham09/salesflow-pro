@@ -122,18 +122,34 @@ class DealService {
     }
   }
 
+  normalizeStage(stage) {
+    if (!stage) return 'lead';
+    const s = String(stage).toLowerCase();
+    if (s === 'qualification') return 'qualified';
+    if (s === 'won') return 'closed_won';
+    if (s === 'lost') return 'closed_lost';
+    return s;
+  }
+
   // Create a new deal
   async createDeal(dealData) {
     if (isDemoMode()) {
       return localCrmStorage.createDeal(dealData);
     }
 
-    const { title, name, expectedCloseDate, user_id, contact_id, ...rest } = dealData;
+    const { title, name, expectedCloseDate, user_id, contact_id, stage, ...rest } = dealData;
+    let finalUserId = user_id;
+    if (!finalUserId) {
+      const { data: userData } = await supabase.auth.getUser();
+      finalUserId = userData?.user?.id || null;
+    }
+
     const dataToInsert = {
       ...rest,
       title: title || name || 'New Deal',
-      expected_close_date: expectedCloseDate || dealData.expected_close_date,
-      user_id: user_id || null,
+      stage: this.normalizeStage(stage),
+      expected_close_date: expectedCloseDate || dealData.expected_close_date || null,
+      user_id: finalUserId,
       contact_id: contact_id || null
     };
     
@@ -159,11 +175,12 @@ class DealService {
       return localCrmStorage.updateDeal(dealId, updates);
     }
 
-    const { title, name, expectedCloseDate, user_id, contact_id, ...rest } = updates;
+    const { title, name, expectedCloseDate, user_id, contact_id, stage, ...rest } = updates;
     const dataToUpdate = {
       ...rest
     };
     if (title || name) dataToUpdate.title = title || name;
+    if (stage) dataToUpdate.stage = this.normalizeStage(stage);
     if (expectedCloseDate !== undefined) dataToUpdate.expected_close_date = expectedCloseDate;
     if (user_id !== undefined) dataToUpdate.user_id = user_id;
     if (contact_id !== undefined) dataToUpdate.contact_id = contact_id;
@@ -187,8 +204,9 @@ class DealService {
 
   // Update deal stage (for drag and drop)
   async updateDealStage(dealId, newStage) {
+    const normalizedStage = this.normalizeStage(newStage);
     if (isDemoMode()) {
-      return localCrmStorage.updateDealStage(dealId, newStage);
+      return localCrmStorage.updateDealStage(dealId, normalizedStage);
     }
 
     try {
@@ -202,12 +220,12 @@ class DealService {
       };
 
       const updates = {
-        stage: newStage,
-        probability: stageProbs[newStage] || 0,
+        stage: normalizedStage,
+        probability: stageProbs[normalizedStage] !== undefined ? stageProbs[normalizedStage] : 0,
         days_in_stage: 0
       };
 
-      if (newStage === 'closed_won' || newStage === 'closed_lost') {
+      if (normalizedStage === 'closed_won' || normalizedStage === 'closed_lost') {
         updates.actual_close_date = new Date().toISOString().split('T')[0];
       }
 
