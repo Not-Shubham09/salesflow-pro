@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SalesFlow Pro CRM — Academic Project Presentation</title>
+  <style>
+    :root {
+      --primary: #1E40AF;
+      --primary-light: #EFF6FF;
+      --text-main: #1F2937;
+      --text-muted: #6B7280;
+      --bg: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --border: #E2E8F0;
+      --success: #10B981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .slide-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1000px;
+      min-height: 560px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--border);
+      padding: 3.5rem;
+      flex-direction: column;
+      justify-content: space-between;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .slide.active { display: flex; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .slide-header {
+      border-bottom: 2px solid var(--primary-light);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .slide-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      display: inline-block;
+      margin-bottom: 0.5rem;
+    }
+    h1 { font-size: 2.25rem; color: var(--text-main); font-weight: 800; line-height: 1.2; }
+    h2 { font-size: 1.75rem; color: var(--text-main); font-weight: 700; }
+    p.subtitle { font-size: 1.1rem; color: var(--text-muted); margin-top: 0.5rem; }
+    .content { flex: 1; display: flex; flex-direction: column; justify-content: center; font-size: 1.05rem; line-height: 1.6; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+    .card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+    .card h3 { font-size: 1.1rem; color: var(--primary); margin-bottom: 0.5rem; }
+    .card p, .card li { font-size: 0.95rem; color: var(--text-main); }
+    ul { list-style: square; padding-left: 1.5rem; }
+    li { margin-bottom: 0.5rem; }
+    .badge {
+      display: inline-block;
+      background: #ECFDF5;
+      color: #065F46;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      border: 1px solid #A7F3D0;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 3rem;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+    }
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.6rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .progress-info { font-weight: 600; color: var(--text-muted); font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+
+<div class="slide-container">
+
+  <!-- Slide 1: Title -->
+  <div class="slide active">
+    <div>
+      <span class="slide-tag">Academic Project Defense • 2026</span>
+      <h1>SalesFlow Pro CRM</h1>
+      <p class="subtitle">Production-Ready B2B Sales Management Platform with PostgreSQL & Kanban Engine</p>
+    </div>
+    <div class="content">
+      <div class="card" style="margin-top: 2rem; border-left: 4px solid var(--primary);">
+        <p><strong>Student Name:</strong> Shubham</p>
+        <p><strong>Department:</strong> Computer Science & Engineering</p>
+        <p><strong>Architecture:</strong> Single-Page Application (React 18 + Vite) & BaaS (Supabase / PostgreSQL 15)</p>
+        <p><strong>Repository:</strong> github.com/Not-Shubham09/salesflow-pro</p>
+      </div>
+    </div>
+    <p style="color: var(--text-muted); font-size: 0.85rem;">Use Left / Right arrow keys to navigate</p>
+  </div>
+
+  <!-- Slide 2: Problem Statement -->
+  <div class="slide">
+    <div class="slide-header">
+      <div>
+        <span class="slide-tag">Problem Statement</span>
+        <h2>The Sales Operations Challenge</h2>
+      </div>
+    </div>
+    <div class="content">
+      <div class="grid-2">
+        <div class="card">
+          <h3>🚨 Industry Bottlenecks</h3>
+          <ul>
+            <li><strong>Opaque Pipelines:</strong> Deals stagnate across undefined stages with zero velocity tracking.</li>
+            <li><strong>Disconnected Contacts:</strong> Customer interactions are lost across personal spreadsheets and disjointed inboxes.</li>
+            <li><strong>Tool Clutter:</strong> Legacy enterprise CRMs are bloated, slow, and impose steep learning curves.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>💡 Our Engineering Goal</h3>
+          <ul>
+            <li>Deliver an intuitive, <strong>sub-second Single Page App</strong> with zero loading friction.</li>
+            <li>Implement visual <strong>Kanban pipeline orchestration</strong> with dynamic probability calculations.</li>
+            <li>Build a <strong>resilient dual-engine persistence layer</strong> that guarantees 100% presentation uptime.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 3: Technology Stack -->
+  <div class="slide">
+    <div class="slide-header">
+      <div>
+        <span class="slide-tag">Technology Stack</span>
+        <h2>Modern Engineering Foundation</h2>
+      </div>
+    </div>
+    <div class="content">
+      <div class="grid-3">
+        <div class="card">
+          <h3>Frontend Core</h3>
+          <ul>
+            <li><strong>React 18.2:</strong> Component architecture & Concurrent Root</li>
+            <li><strong>Vite 5.0:</strong> Lightning HMR & Rollup bundling</li>
+            <li><strong>React Router 6:</strong> Declarative SPA client routing</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>UI & Visualization</h3>
+          <ul>
+            <li><strong>Tailwind CSS 3:</strong> 53kB purged production stylesheet</li>
+            <li><strong>react-beautiful-dnd:</strong> Physics-based Kanban drag & drop</li>
+            <li><strong>Recharts & D3:</strong> Interactive SVG analytics funnels</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Data & Cloud</h3>
+          <ul>
+            <li><strong>PostgreSQL 15:</strong> Relational schema & custom ENUMs</li>
+            <li><strong>Supabase:</strong> PostgREST gateway & GoTrue JWT auth</li>
+            <li><strong>localStorage Engine:</strong> In-browser fallback resilience</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 4: System Architecture -->
+  <div class="slide">
+    <div class="slide-header">
+      <div>
+        <span class="slide-tag">System Design</span>
+        <h2>Dual-Engine Decoupled Architecture</h2>
+      </div>
+    </div>
+    <div class="content">
+      <div class="card" style="margin-bottom: 1rem;">
+        <h3>Client-Tier Decoupling (Facade Pattern)</h3>
+        <p>UI components never call raw SQL or endpoints directly. All data access flows through our <strong>Service Facade Layer</strong> (<code>dealService</code>, <code>contactService</code>), which automatically routes to Live Supabase or Local Fallback.</p>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Live Cloud Mode (Online)</h3>
+          <p>Client SDK transmits requests over HTTPS with Bearer JWT tokens. PostgreSQL evaluates <strong>Row Level Security (RLS)</strong> directly on the database engine to enforce role access.</p>
+        </div>
+        <div class="card">
+          <h3>Local Storage Mode (Resilience)</h3>
+          <p>If internet drops during a presentation, <code>localCrmStorage</code> steps in transparently. Full CRUD, role switches, and pipeline drag-and-drop operate with zero exceptions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 5: Major Features -->
+  <div class="slide">
+    <div class="slide-header">
+      <div>
+        <span class="slide-tag">Core Modules</span>
+        <h2>End-to-End CRM Capabilities</h2>
+      </div>
+    </div>
+    <div class="content">
+      <div class="grid-3">
+        <div class="card">
+          <h3>Kanban Pipeline</h3>
+          <p>6 stages with 260px fixed columns. Dragging deals auto-synchronizes stage probabilities (Lead 20% &rarr; Won 100%).</p>
+        </div>
+        <div class="card">
+          <h3>Contact Dossiers</h3>
+          <p>Searchable customer directory with linked opportunities, communication history, company tags, and status pills.</p>
+        </div>
+        <div class="card">
+          <h3>Activity Feed</h3>
+          <p>Chronological multi-channel tracking for phone calls, emails, product demos, and meeting duration.</p>
+        </div>
+      </div>
+      <div class="grid-3" style="margin-top: 1rem;">
+        <div class="card">
+          <h3>Task Management</h3>
+          <p>Priority-coded scheduling (urgent, high, medium, low) with completion toggling and progress bars.</p>
+        </div>
+        <div class="card">
+          <h3>Pipeline Analytics</h3>
+          <p>Visual revenue trajectories, conversion funnels, rep performance comparisons, and win-loss ratios.</p>
+        </div>
+        <div class="card">
+          <h3>Role-Based Access</h3>
+          <p>Built-in persona switching for Sales Rep, Sales Manager, Sales Director, and System Administrator.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 6: Database Design & Security -->
+  <div class="slide">
+    <div class="slide-header">
+      <div>
+        <span class="slide-tag">Database Engineering</span>
+        <h2>PostgreSQL Schema & Security</h2>
+      </div>
+    </div>
+    <div class="content">
+      <div class="grid-2">
+        <div class="card">
+          <h3>Relational Schema</h3>
+          <ul>
+            <li><strong>5 Relational Tables:</strong> <code>user_profiles</code>, <code>contacts</code>, <code>deals</code>, <code>activities</code>, <code>tasks</code>.</li>
+            <li><strong>6 Custom ENUMs:</strong> Enforcing data type integrity at the SQL engine level.</li>
+            <li><strong>17 B-Tree Indexes:</strong> Fast lookups across stages, emails, and foreign keys.</li>
+            <li><strong>SQL Triggers:</strong> <code>on_auth_user_created</code> auto-generates profiles on signup.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Row Level Security (RLS)</h3>
+          <ul>
+            <li>Security enforced directly inside PostgreSQL, not vulnerable client-side code.</li>
+            <li><code>is_admin()</code> & <code>is_manager_or_above()</code> SQL helper functions.</li>
+            <li>Sales Reps are strictly constrained to <code>user_id = auth.uid()</code>.</li>
+            <li>Managers gain automatic cross-team pipeline visibility.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 7: Student Contributions -->
+  <div class="slide">
+    <div class="slide-header">
+      <div>
+        <span class="slide-tag">Student Work</span>
+        <h2>My Personal Technical Contributions</h2>
+      </div>
+    </div>
+    <div class="content">
+      <div class="grid-2">
+        <div class="card">
+          <h3>Key Engineering Accomplishments</h3>
+          <ul>
+            <li><strong>PostgreSQL Migration & Integration:</strong> Defined full DDL, RLS policies, and service client layer.</li>
+            <li><strong>260px Kanban Restructuring:</strong> Fixed layout squeezing, contained horizontal scroll, and rebuilt column widths.</li>
+            <li><strong>Modal & State Architecture:</strong> Engineered <code>CreateDealModal.jsx</code>, <code>ToastContext.jsx</code>, and stage calculation logic.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Defect Resolution & QA</h3>
+          <ul>
+            <li><strong>Header Layout Fix:</strong> Diagnosed and fixed invalid Tailwind classes (<code>w-7.5</code>) that blew the header to 258px; standardized to 74px.</li>
+            <li><strong>Flicker-Free Session Hydration:</strong> Synchronously hydrated <code>localStorage</code> session state to eliminate unauthenticated reloads.</li>
+            <li><strong>Automated E2E Testing:</strong> Authored CDP WebSocket scripts verifying all 11 CRUD checks and 22 browser steps.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 8: Testing & Verification -->
+  <div class="slide">
+    <div class="slide-header">
+      <div>
+        <span class="slide-tag">Quality Assurance</span>
+        <h2>Testing & Quality Audit Results</h2>
+      </div>
+    </div>
+    <div class="content">
+      <div class="grid-3">
+        <div class="card" style="text-align: center;">
+          <h3 style="font-size: 2.5rem; color: var(--success); margin-bottom: 0;">100%</h3>
+          <p><strong>CRUD Self-Checks</strong></p>
+          <span class="badge">11 of 11 Passed</span>
+        </div>
+        <div class="card" style="text-align: center;">
+          <h3 style="font-size: 2.5rem; color: var(--success); margin-bottom: 0;">100%</h3>
+          <p><strong>E2E Browser Steps</strong></p>
+          <span class="badge">22 of 22 Passed</span>
+        </div>
+        <div class="card" style="text-align: center;">
+          <h3 style="font-size: 2.5rem; color: var(--success); margin-bottom: 0;">0</h3>
+          <p><strong>Console Exceptions</strong></p>
+          <span class="badge">Zero Uncaught Errors</span>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 1.5rem;">
+        <h3>Responsive Device Verification</h3>
+        <p>Verified across <strong>1440px</strong> (Desktop), <strong>1280px</strong> (Laptop), <strong>1024px</strong> (Tablet), and <strong>375px</strong> (Mobile). Header height remains strictly locked to 74px with zero horizontal page overflow.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Slide 9: Conclusion -->
+  <div class="slide">
+    <div class="slide-header">
+      <div>
+        <span class="slide-tag">Conclusion</span>
+        <h2>Project Defense Summary</h2>
+      </div>
+    </div>
+    <div class="content" style="text-align: center;">
+      <h3 style="font-size: 1.75rem; margin-bottom: 1rem; color: var(--primary);">SalesFlow Pro is Presentation Ready</h3>
+      <p style="max-width: 700px; margin: 0 auto 1.5rem auto;">A full-stack, enterprise-grade CRM demonstrating relational database design, Row Level Security, resilient dual-engine persistence, visual drag-and-drop ergonomics, and comprehensive automated quality assurance.</p>
+      <div style="display: inline-flex; gap: 1rem;">
+        <span class="badge" style="font-size: 1rem; padding: 0.5rem 1rem;">Live Demo: http://localhost:4028</span>
+        <span class="badge" style="font-size: 1rem; padding: 0.5rem 1rem;">Readiness: 94%</span>
+      </div>
+    </div>
+    <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">Thank you, Professor! Questions & Discussion Welcome.</p>
+  </div>
+
+</div>
+
+<!-- Navigation Controls -->
+<div class="controls">
+  <button class="btn" id="prevBtn" onclick="prevSlide()">← Previous</button>
+  <span class="progress-info" id="slideIndicator">Slide 1 of 9</span>
+  <button class="btn" id="nextBtn" onclick="nextSlide()">Next →</button>
+</div>
+
+<script>
+  let currentSlide = 0;
+  const slides = document.querySelectorAll('.slide');
+  const indicator = document.getElementById('slideIndicator');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  function showSlide(index) {
+    slides.forEach((slide, i) => {
+      slide.classList.toggle('active', i === index);
+    });
+    indicator.textContent = `Slide ${index + 1} of ${slides.length}`;
+    prevBtn.disabled = index === 0;
+    nextBtn.disabled = index === slides.length - 1;
+    currentSlide = index;
+  }
+
+  function nextSlide() {
+    if (currentSlide < slides.length - 1) showSlide(currentSlide + 1);
+  }
+
+  function prevSlide() {
+    if (currentSlide > 0) showSlide(currentSlide - 1);
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+</script>
+
+</body>
+</html>
