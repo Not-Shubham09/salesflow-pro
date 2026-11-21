@@ -37,7 +37,8 @@ if (isSupabaseConfigured) {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: true
+        detectSessionInUrl: true,
+        lock: async (name, acquireTimeout, fn) => await fn()
       }
     });
   } catch (err) {

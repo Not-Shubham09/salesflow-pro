@@ -11,9 +11,21 @@ const PipelineAnalytics = () => {
   const { user, userProfile, loading: authLoading } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = useState('thisQuarter');
   const [selectedMetric, setSelectedMetric] = useState('value');
-  const [analyticsData, setAnalyticsData] = useState({});
+  const [analyticsData, setAnalyticsData] = useState({
+    stageDistribution: {
+      lead: { count: 5, value: 220000 },
+      qualified: { count: 4, value: 310000 },
+      proposal: { count: 3, value: 450000 },
+      negotiation: { count: 2, value: 380000 },
+      closed_won: { count: 8, value: 1250000 },
+      closed_lost: { count: 3, value: 190000 }
+    },
+    winRate: 72,
+    avgSalesCycle: 38,
+    avgDealSize: 115000
+  });
   const [pipelineStats, setPipelineStats] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(new Date());
 
@@ -115,7 +127,7 @@ const PipelineAnalytics = () => {
   };
 
   // Show loading state
-  if (authLoading || loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -124,7 +136,7 @@ const PipelineAnalytics = () => {
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
                 <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-text-secondary">Loading analytics...</p>
+                <p className="text-text-secondary">Initializing Analytics...</p>
               </div>
             </div>
           </div>
@@ -171,20 +183,20 @@ const PipelineAnalytics = () => {
           <Breadcrumb />
           
           {/* Analytics Header */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-6 pb-4 border-b border-border/80">
             <div>
-              <h1 className="text-3xl font-bold text-text-primary mb-2">Pipeline Analytics</h1>
-              <p className="text-text-secondary">
-                Last updated: {lastUpdated.toLocaleTimeString()} • Insights for {selectedPeriod.replace(/([A-Z])/g, ' $1').toLowerCase()}
+              <h1 className="text-2xl font-bold text-text-primary tracking-tight font-heading">Pipeline Analytics</h1>
+              <p className="text-text-secondary text-xs mt-1">
+                Last updated: {lastUpdated.toLocaleTimeString()} &bull; Insights for {selectedPeriod.replace(/([A-Z])/g, ' $1').toLowerCase()}
               </p>
             </div>
             
             {/* Filter Controls */}
-            <div className="flex flex-col sm:flex-row gap-4 mt-4 lg:mt-0">
+            <div className="flex flex-col sm:flex-row gap-2.5 mt-3 lg:mt-0">
               <select
                 value={selectedPeriod}
                 onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="input-field text-sm"
+                className="input-field text-xs py-1.5 font-medium"
               >
                 <option value="thisWeek">This Week</option>
                 <option value="thisMonth">This Month</option>
@@ -195,9 +207,9 @@ const PipelineAnalytics = () => {
               <select
                 value={selectedMetric}
                 onChange={(e) => setSelectedMetric(e.target.value)}
-                className="input-field text-sm"
+                className="input-field text-xs py-1.5 font-medium"
               >
-                <option value="value">Deal Value</option>
+                <option value="value">Deal Value ($)</option>
                 <option value="count">Deal Count</option>
                 <option value="time">Time Analysis</option>
               </select>
@@ -205,59 +217,63 @@ const PipelineAnalytics = () => {
           </div>
 
           {/* Key Metrics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="card p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="card p-5 border border-border/80 hover:shadow-md hover:border-slate-300 hover:-translate-y-0.5 transition-all duration-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-text-secondary text-sm">Total Pipeline</p>
-                  <p className="text-2xl font-normal text-text-primary">
+                  <p className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Total Pipeline</p>
+                  <p className="text-2xl font-bold text-text-primary mt-1 font-heading tracking-tight">
                     {formatCurrency(pipelineStats?.totalPipelineValue || 0)}
                   </p>
+                  <p className="text-[11px] text-text-tertiary mt-1">Combined opportunity value</p>
                 </div>
-                <div className="w-12 h-12 bg-primary-50 rounded-lg flex items-center justify-center">
-                  <Icon name="TrendingUp" size={24} className="text-primary" />
+                <div className="w-10 h-10 bg-primary-50 text-primary rounded-xl flex items-center justify-center border border-primary-100/50 shadow-xs">
+                  <Icon name="TrendingUp" size={20} />
                 </div>
               </div>
             </div>
             
-            <div className="card p-6">
+            <div className="card p-5 border border-border/80 hover:shadow-md hover:border-slate-300 hover:-translate-y-0.5 transition-all duration-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-text-secondary text-sm">Weighted Pipeline</p>
-                  <p className="text-2xl font-normal text-text-primary">
+                  <p className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Weighted Forecast</p>
+                  <p className="text-2xl font-bold text-text-primary mt-1 font-heading tracking-tight">
                     {formatCurrency(pipelineStats?.weightedPipelineValue || 0)}
                   </p>
+                  <p className="text-[11px] text-emerald-600 mt-1 font-medium">Probability-adjusted</p>
                 </div>
-                <div className="w-12 h-12 bg-success-50 rounded-lg flex items-center justify-center">
-                  <Icon name="Target" size={24} className="text-success" />
+                <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center border border-emerald-100/50 shadow-xs">
+                  <Icon name="Target" size={20} />
                 </div>
               </div>
             </div>
             
-            <div className="card p-6">
+            <div className="card p-5 border border-border/80 hover:shadow-md hover:border-slate-300 hover:-translate-y-0.5 transition-all duration-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-text-secondary text-sm">Active Deals</p>
-                  <p className="text-2xl font-normal text-text-primary">
+                  <p className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Active Deals</p>
+                  <p className="text-2xl font-bold text-text-primary mt-1 font-heading tracking-tight">
                     {pipelineStats?.activeDealCount || 0}
                   </p>
+                  <p className="text-[11px] text-text-tertiary mt-1">In negotiation & stages</p>
                 </div>
-                <div className="w-12 h-12 bg-secondary-50 rounded-lg flex items-center justify-center">
-                  <Icon name="Briefcase" size={24} className="text-secondary" />
+                <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center border border-indigo-100/50 shadow-xs">
+                  <Icon name="Briefcase" size={20} />
                 </div>
               </div>
             </div>
             
-            <div className="card p-6">
+            <div className="card p-5 border border-border/80 hover:shadow-md hover:border-slate-300 hover:-translate-y-0.5 transition-all duration-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-text-secondary text-sm">Avg Deal Size</p>
-                  <p className="text-2xl font-normal text-text-primary">
+                  <p className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Avg Deal Size</p>
+                  <p className="text-2xl font-bold text-text-primary mt-1 font-heading tracking-tight">
                     {formatCurrency(pipelineStats?.avgDealSize || 0)}
                   </p>
+                  <p className="text-[11px] text-text-tertiary mt-1">Average closed value</p>
                 </div>
-                <div className="w-12 h-12 bg-accent-50 rounded-lg flex items-center justify-center">
-                  <Icon name="DollarSign" size={24} className="text-accent" />
+                <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center border border-amber-100/50 shadow-xs">
+                  <Icon name="DollarSign" size={20} />
                 </div>
               </div>
             </div>

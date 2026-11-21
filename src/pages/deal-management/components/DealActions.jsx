@@ -6,6 +6,8 @@ const DealActions = ({ onSave, onDelete, onClone, onCreateTask, isSaving }) => {
     <div className="flex flex-wrap items-center gap-3">
       {/* Primary Actions */}
       <button
+        type="submit"
+        form="deal-form"
         onClick={onSave}
         disabled={isSaving}
         className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"

@@ -38,7 +38,13 @@ class AuthService {
       return { success: true, data };
     } catch (error) {
       if (error?.message?.includes('Failed to fetch') || 
-          error?.message?.includes('AuthRetryableFetchError')) {
+          error?.message?.includes('AuthRetryableFetchError') ||
+          error?.name === 'TypeError') {
+        const localRes = localCrmStorage.signIn(email, password);
+        if (localRes?.success) {
+          notifyAuthListeners('SIGNED_IN', localRes.data.session);
+          return localRes;
+        }
         return { 
           success: false, 
           error: 'Cannot connect to authentication service. Your Supabase project may be paused or inactive.' 

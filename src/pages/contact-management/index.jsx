@@ -12,8 +12,10 @@ import ImportContactsModal from './components/ImportContactsModal';
 import ExportContactsModal from './components/ExportContactsModal';
 import MergeDuplicatesModal from './components/MergeDuplicatesModal';
 import FilterPanel from './components/FilterPanel';
+import { useToast } from '../../contexts/ToastContext';
 
 const ContactManagement = () => {
+  const toast = useToast();
   const [contacts, setContacts] = useState([]);
   const [selectedContact, setSelectedContact] = useState(null);
   const [selectedContacts, setSelectedContacts] = useState([]);
@@ -130,7 +132,9 @@ const ContactManagement = () => {
       });
       if (error) {
         console.error('Error creating contact:', error);
+        toast.error(error || 'Failed to create contact');
       } else {
+        toast.success(`Contact "${data.first_name} ${data.last_name}".trim() created!`);
         setContacts([...contacts, data]);
         setSelectedContact(data);
       }
@@ -139,7 +143,9 @@ const ContactManagement = () => {
       const { data, error } = await contactService.updateContact(selectedContact.id, contactData);
       if (error) {
         console.error('Error updating contact:', error);
+        toast.error(error || 'Failed to update contact');
       } else {
+        toast.success(`Contact updated successfully!`);
         const updatedContacts = contacts.map(contact => 
           contact.id === selectedContact.id ? data : contact
         );
@@ -163,7 +169,9 @@ const ContactManagement = () => {
     const { success, error } = await contactService.deleteContact(contactId);
     if (error) {
       console.error('Error deleting contact:', error);
+      toast.error(error || 'Failed to delete contact');
     } else if (success) {
+      toast.success('Contact deleted successfully');
       const updatedContacts = contacts.filter(contact => contact.id !== contactId);
       setContacts(updatedContacts);
       
@@ -202,45 +210,45 @@ const ContactManagement = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="pt-16">
-        <div className="px-6 py-8">
+      <main className="pt-20 pb-12">
+        <div className="px-4 sm:px-6">
           <div className="max-w-7xl mx-auto">
             <Breadcrumb />
             
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-text-primary">Contact Management</h1>
-                <p className="text-text-secondary mt-1">Manage your customer relationships and communication history</p>
+                <h1 className="text-2xl font-bold text-text-primary tracking-tight font-heading">Contact Directory</h1>
+                <p className="text-text-secondary text-xs sm:text-sm mt-0.5">Manage your customer accounts, relationships, and touchpoints</p>
               </div>
               
-              <div className="flex flex-wrap gap-3 mt-4 md:mt-0">
+              <div className="flex flex-wrap gap-2.5 mt-4 md:mt-0">
                 <button 
                   onClick={handleAddContact}
-                  className="btn-primary inline-flex items-center space-x-2"
+                  className="btn-primary inline-flex items-center space-x-1.5 text-xs sm:text-sm px-3.5 py-1.5 shadow-xs"
                 >
-                  <Icon name="UserPlus" size={18} />
+                  <Icon name="UserPlus" size={16} />
                   <span>Add Contact</span>
                 </button>
                 
                 <button 
                   onClick={() => setIsImportModalOpen(true)}
-                  className="inline-flex items-center space-x-2 px-4 py-2 border border-border rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-all duration-150 ease-out"
+                  className="inline-flex items-center space-x-1.5 px-3 py-1.5 border border-border rounded-lg text-text-secondary hover:text-text-primary hover:bg-slate-100/70 text-xs sm:text-sm font-medium transition-all duration-150"
                 >
-                  <Icon name="Upload" size={18} />
+                  <Icon name="Upload" size={15} />
                   <span>Import</span>
                 </button>
                 
                 <button 
                   onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
-                  className={`inline-flex items-center space-x-2 px-4 py-2 border rounded-lg transition-all duration-150 ease-out ${
+                  className={`inline-flex items-center space-x-1.5 px-3 py-1.5 border rounded-lg text-xs sm:text-sm font-medium transition-all duration-150 ${
                     Object.values(filters).some(f => Array.isArray(f) ? f.length > 0 : f !== null) || isFilterPanelOpen
-                      ? 'border-primary-500 bg-primary-50 text-primary' :'border-border text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                      ? 'border-primary-500 bg-primary-50 text-primary' :'border-border text-text-secondary hover:text-text-primary hover:bg-slate-100/70'
                   }`}
                 >
-                  <Icon name="Filter" size={18} />
+                  <Icon name="Filter" size={15} />
                   <span>Filter</span>
                   {Object.values(filters).some(f => Array.isArray(f) ? f.length > 0 : f !== null) && (
-                    <span className="w-5 h-5 bg-primary text-white text-xs rounded-full flex items-center justify-center">
+                    <span className="w-4.5 h-4.5 bg-primary text-white text-[10px] rounded-full flex items-center justify-center font-bold">
                       {Object.values(filters).reduce((count, f) => count + (Array.isArray(f) ? f.length : (f !== null ? 1 : 0)), 0)}
                     </span>
                   )}
@@ -258,44 +266,48 @@ const ContactManagement = () => {
             )}
             
             {/* Search and Tabs */}
-            <div className="mb-6">
-              <div className="relative mb-4">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Icon name="Search" size={18} className="text-text-tertiary" />
-                </div>
+            <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="relative flex-1 max-w-md">
+                <Icon name="Search" size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary" />
                 <input
                   type="text"
                   placeholder="Search contacts by name, email, or company..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="input-field pl-10"
+                  className="input-field pl-9.5 text-xs sm:text-sm"
                 />
               </div>
               
-              <div className="flex border-b border-border">
+              <div className="bg-slate-100/70 p-1 rounded-xl border border-border/60 inline-flex self-start md:self-auto">
                 <button
                   onClick={() => setActiveTab('all')}
-                  className={`px-4 py-2 text-sm font-medium ${
-                    activeTab === 'all' ?'text-primary border-b-2 border-primary' :'text-text-secondary hover:text-text-primary'
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                    activeTab === 'all' 
+                      ? 'bg-surface text-primary font-semibold shadow-xs border border-border/80 ring-1 ring-primary/10' 
+                      : 'text-text-secondary hover:text-text-primary hover:bg-surface/60'
                   }`}
                 >
-                  All Contacts
+                  All ({contacts.length})
                 </button>
                 <button
                   onClick={() => setActiveTab('active')}
-                  className={`px-4 py-2 text-sm font-medium ${
-                    activeTab === 'active' ?'text-primary border-b-2 border-primary' :'text-text-secondary hover:text-text-primary'
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                    activeTab === 'active' 
+                      ? 'bg-surface text-primary font-semibold shadow-xs border border-border/80 ring-1 ring-primary/10' 
+                      : 'text-text-secondary hover:text-text-primary hover:bg-surface/60'
                   }`}
                 >
-                  Active
+                  Active ({contacts.filter(c => c.status === 'active').length})
                 </button>
                 <button
                   onClick={() => setActiveTab('inactive')}
-                  className={`px-4 py-2 text-sm font-medium ${
-                    activeTab === 'inactive' ?'text-primary border-b-2 border-primary' :'text-text-secondary hover:text-text-primary'
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                    activeTab === 'inactive' 
+                      ? 'bg-surface text-primary font-semibold shadow-xs border border-border/80 ring-1 ring-primary/10' 
+                      : 'text-text-secondary hover:text-text-primary hover:bg-surface/60'
                   }`}
                 >
-                  Inactive
+                  Inactive ({contacts.filter(c => c.status === 'inactive').length})
                 </button>
               </div>
             </div>

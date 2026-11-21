@@ -59,24 +59,24 @@ const Header = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 bg-surface/95 backdrop-blur border-b border-border z-40">
-        <div className="px-4 lg:px-6 py-2.5">
+      <header className="fixed top-0 left-0 right-0 bg-surface/90 backdrop-blur-md border-b border-border/80 z-40 transition-all">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center space-x-3">
               <Link 
                 to="/sales-dashboard" 
-                className="flex items-center space-x-2.5 group"
+                className="flex items-center space-x-2.5 group focus:outline-none"
                 onClick={handleNavigation}
               >
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-primary-600 flex items-center justify-center text-white shadow-sm shadow-primary/20 group-hover:scale-105 transition-transform">
-                  <Icon name="Activity" size={20} className="text-white" />
+                <div className="w-8.5 h-8.5 rounded-xl bg-gradient-to-tr from-primary to-primary-600 flex items-center justify-center text-white shadow-xs shadow-primary/25 group-hover:scale-105 transition-transform duration-150">
+                  <Icon name="Activity" size={19} className="text-white" />
                 </div>
                 <div>
                   <span className="text-base font-bold text-text-primary tracking-tight font-heading">
                     SalesFlow<span className="text-primary font-bold">Pro</span>
                   </span>
-                  <span className="hidden sm:inline-block ml-1.5 px-1.5 py-0.2 rounded text-[10px] font-semibold uppercase tracking-wider bg-primary-50 text-primary border border-primary-100">
+                  <span className="hidden sm:inline-block ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-primary-50 text-primary border border-primary-100">
                     CRM
                   </span>
                 </div>
@@ -84,20 +84,20 @@ const Header = () => {
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center space-x-1">
+            <nav className="hidden lg:flex items-center space-x-1 bg-slate-50/70 p-1 rounded-xl border border-border/60">
               {navigationItems.map((item) => (
                 <Link
                   key={item.path}
                   to={item.path}
                   onClick={handleNavigation}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center space-x-2 ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 flex items-center space-x-1.5 ${
                     isActiveRoute(item.path)
-                      ? 'bg-primary-50 text-primary font-semibold border border-primary-100 shadow-xs' 
-                      : 'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                      ? 'bg-surface text-primary font-semibold shadow-xs border border-border/80 ring-1 ring-primary/10' 
+                      : 'text-text-secondary hover:text-text-primary hover:bg-surface/80'
                   }`}
                   title={item.tooltip}
                 >
-                  <Icon name={item.icon} size={16} />
+                  <Icon name={item.icon} size={15} />
                   <span>{item.label}</span>
                 </Link>
               ))}
@@ -108,9 +108,9 @@ const Header = () => {
               {/* Environment / Demo Badge */}
               <div className="hidden sm:flex items-center space-x-2">
                 {isDemoMode ? (
-                  <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-xs">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>Demo Mode</span>
+                    <span className="font-medium text-[11px]">Demo Mode</span>
                     <button
                       onClick={resetDemoData}
                       title="Reset sample CRM data to original state"
@@ -120,9 +120,9 @@ const Header = () => {
                     </button>
                   </div>
                 ) : (
-                  <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                  <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200 shadow-xs">
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                    <span>Supabase Live</span>
+                    <span className="font-medium text-[11px]">Supabase Live</span>
                   </div>
                 )}
               </div>
@@ -131,27 +131,27 @@ const Header = () => {
               <div className="relative">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-surface-hover border border-transparent hover:border-border transition-all"
+                  className="flex items-center space-x-2.5 p-1 rounded-xl hover:bg-slate-100/70 border border-border/70 hover:border-border transition-all cursor-pointer"
                 >
                   <img
                     src={userProfile?.avatar_url || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150'}
                     alt={userProfile?.full_name || 'User'}
-                    className="w-8 h-8 rounded-full object-cover border border-border"
+                    className="w-7.5 h-7.5 rounded-full object-cover border border-border"
                   />
-                  <div className="hidden md:block text-left text-xs">
-                    <p className="font-semibold text-text-primary leading-tight">
+                  <div className="hidden md:block text-left text-xs pr-1">
+                    <p className="font-semibold text-text-primary text-[11px] leading-tight">
                       {userProfile?.full_name || 'Sales User'}
                     </p>
                     <p className="text-text-secondary text-[10px] leading-tight capitalize">
                       {formatRoleName(userProfile?.role)}
                     </p>
                   </div>
-                  <Icon name="ChevronDown" size={14} className="text-text-tertiary" />
+                  <Icon name="ChevronDown" size={13} className="text-text-tertiary" />
                 </button>
 
                 {/* Dropdown Menu */}
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-surface rounded-xl shadow-lg border border-border py-2 z-50">
+                  <div className="absolute right-0 mt-2 w-64 bg-surface rounded-xl shadow-xl border border-border/90 py-1.5 z-50 animate-in fade-in zoom-in-95 duration-100">
                     <div className="px-4 py-2 border-b border-border">
                       <p className="text-xs font-semibold text-text-primary">
                         {userProfile?.full_name || 'Sales User'}

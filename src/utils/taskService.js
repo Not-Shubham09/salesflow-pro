@@ -1,5 +1,6 @@
 import { supabase, isDemoMode } from './supabase';
 import { localCrmStorage } from './localCrmStorage';
+import { isValidUUID } from './uuid';
 
 class TaskService {
   // Get all tasks for the current user
@@ -100,9 +101,15 @@ class TaskService {
     }
 
     try {
+      const sanitized = {
+        ...taskData,
+        deal_id: isValidUUID(taskData.deal_id) ? taskData.deal_id : null,
+        contact_id: isValidUUID(taskData.contact_id) ? taskData.contact_id : null,
+      };
+
       const { data, error } = await supabase
         .from('tasks')
-        .insert([taskData])
+        .insert([sanitized])
         .select()
         .single();
 

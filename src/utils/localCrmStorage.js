@@ -677,9 +677,10 @@ class LocalCrmStorage {
     const wonDeals = data.deals.filter(d => d.stage === 'closed_won');
     const lostDeals = data.deals.filter(d => d.stage === 'closed_lost');
     const wonValue = wonDeals.reduce((sum, d) => sum + parseFloat(d.value || 0), 0);
+    const activeDeals = data.deals.filter(d => !['closed_won', 'closed_lost'].includes(d.stage));
     const winRate = (wonDeals.length + lostDeals.length) > 0
       ? Math.round((wonDeals.length / (wonDeals.length + lostDeals.length)) * 100)
-      : 75;
+      : 0;
 
     return {
       success: true,
@@ -688,8 +689,13 @@ class LocalCrmStorage {
         totalValue,
         wonValue,
         winRate,
-        avgDealSize: totalDeals > 0 ? Math.round(totalValue / totalDeals) : 0,
-        activeDealsCount: totalDeals - wonDeals.length - lostDeals.length
+        avgDealSize: totalDeals > 0 ? totalValue / totalDeals : 0,
+        activeDealsCount: activeDeals.length,
+        activeDealCount: activeDeals.length,
+        closedWonCount: wonDeals.length,
+        closedLostCount: lostDeals.length,
+        totalPipelineValue: activeDeals.reduce((sum, d) => sum + parseFloat(d.value || 0), 0),
+        weightedPipelineValue: activeDeals.reduce((sum, d) => sum + parseFloat(d.value || 0) * (d.probability || 0) / 100, 0)
       }
     };
   }
@@ -959,23 +965,31 @@ class LocalCrmStorage {
     };
   }
 
-  getPerformanceMetrics(quota = 3500000) {
+  getPerformanceMetrics(quota = 2500000) {
     const data = this.getData();
-    const wonDeals = data.deals.filter(d => d.stage === 'closed_won');
-    const lostDeals = data.deals.filter(d => d.stage === 'closed_lost');
-    const achieved = wonDeals.reduce((sum, d) => sum + parseFloat(d.value || 0), 0) + 1850000;
-    const percentage = quota > 0 ? Math.round((achieved / quota) * 100) : 74;
+    const thisYear = new Date().getFullYear();
+    const yearDeals = data.deals.filter(d => new Date(d.created_at).getFullYear() === thisYear);
+    const wonDeals = yearDeals.filter(d => d.stage === 'closed_won');
+    const lostDeals = yearDeals.filter(d => d.stage === 'closed_lost');
+    const activeDeals = data.deals.filter(d => !['closed_won', 'closed_lost'].includes(d.stage));
+    const achieved = wonDeals.reduce((sum, d) => sum + parseFloat(d.value || 0), 0);
+    const totalDealsValue = yearDeals.reduce((sum, d) => sum + parseFloat(d.value || 0), 0);
+    const safeQuota = parseFloat(quota) || 2500000;
+    const percentage = safeQuota > 0 ? Math.round((achieved / safeQuota) * 100) : 0;
+    const closedCount = wonDeals.length + lostDeals.length;
 
     return {
       success: true,
       data: {
-        quota,
+        quota: safeQuota,
         achieved,
         percentage,
-        dealsWon: wonDeals.length + 18,
-        dealsLost: lostDeals.length + 6,
-        avgDealSize: 110000,
-        conversionRate: 31.5
+        dealsWon: wonDeals.length,
+        dealsLost: lostDeals.length,
+        avgDealSize: yearDeals.length > 0 ? totalDealsValue / yearDeals.length : 0,
+        conversionRate: closedCount > 0 ? Math.round((wonDeals.length / closedCount) * 100) : 0,
+        activePipeline: activeDeals.reduce((sum, d) => sum + parseFloat(d.value || 0), 0),
+        activeDealCount: activeDeals.length
       }
     };
   }

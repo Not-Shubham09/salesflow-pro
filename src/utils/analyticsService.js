@@ -196,7 +196,7 @@ class AnalyticsService {
 
     const closedWonDeals = yearDeals.filter(deal => deal.stage === 'closed_won');
     const closedLostDeals = yearDeals.filter(deal => deal.stage === 'closed_lost');
-    const activeDeals = yearDeals.filter(deal => 
+    const activeDeals = deals.filter(deal =>
       !['closed_won', 'closed_lost'].includes(deal.stage)
     );
 
@@ -213,8 +213,8 @@ class AnalyticsService {
       dealsWon: closedWonDeals.length,
       dealsLost: closedLostDeals.length,
       avgDealSize: yearDeals.length > 0 ? totalDealsValue / yearDeals.length : 0,
-      conversionRate: yearDeals.length > 0 
-        ? Math.round((closedWonDeals.length / yearDeals.length) * 100) 
+      conversionRate: (closedWonDeals.length + closedLostDeals.length) > 0
+        ? Math.round((closedWonDeals.length / (closedWonDeals.length + closedLostDeals.length)) * 100)
         : 0,
       activePipeline: activeDeals.reduce((sum, deal) => sum + parseFloat(deal.value || 0), 0),
       activeDealCount: activeDeals.length

@@ -118,7 +118,7 @@ const DealForm = ({ deal, contacts, stages, salesReps, onSave, isSaving }) => {
         )}
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form id="deal-form" onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Information Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="lg:col-span-2">
@@ -133,7 +133,7 @@ const DealForm = ({ deal, contacts, stages, salesReps, onSave, isSaving }) => {
               placeholder="Enter deal title"
             />
             {errors.title && (
-              <p className="mt-1 text-sm text-error">{errors.name}</p>
+              <p className="mt-1 text-sm text-error">{errors.title}</p>
             )}
           </div>
 
@@ -149,8 +149,8 @@ const DealForm = ({ deal, contacts, stages, salesReps, onSave, isSaving }) => {
                 onChange={(e) => handleInputChange('value', parseFloat(e.target.value) || '')}
                 className={`input-field pl-8 ${errors.value ? 'border-error' : ''}`}
                 placeholder="0"
-                min="0"
-                step="1000"
+                min="0.01"
+                step="0.01"
               />
             </div>
             {errors.value && (
@@ -174,7 +174,7 @@ const DealForm = ({ deal, contacts, stages, salesReps, onSave, isSaving }) => {
               className={`input-field ${errors.expected_close_date ? 'border-error' : ''}`}
             />
             {errors.expected_close_date && (
-              <p className="mt-1 text-sm text-error">{errors.expectedCloseDate}</p>
+              <p className="mt-1 text-sm text-error">{errors.expected_close_date}</p>
             )}
           </div>
 
@@ -205,7 +205,7 @@ const DealForm = ({ deal, contacts, stages, salesReps, onSave, isSaving }) => {
               Assigned To *
             </label>
             <select
-              value={formData.user_id}
+              value={formData.user_id || ''}
               onChange={(e) => handleInputChange('user_id', e.target.value)}
               className={`input-field ${errors.user_id ? 'border-error' : ''}`}
             >
@@ -250,7 +250,7 @@ const DealForm = ({ deal, contacts, stages, salesReps, onSave, isSaving }) => {
             Primary Contact *
           </label>
           <select
-              value={formData.contact_id}
+              value={formData.contact_id || ''}
               onChange={(e) => handleInputChange('contact_id', e.target.value)}
               className={`input-field ${errors.contact_id ? 'border-error' : ''}`}
             >
@@ -286,14 +286,29 @@ const DealForm = ({ deal, contacts, stages, salesReps, onSave, isSaving }) => {
         <div className="flex justify-end space-x-3 pt-6 border-t border-border">
           <button
             type="button"
-            onClick={() => window.location.reload()}
+            onClick={() => {
+              if (deal) {
+                setFormData({
+                  title: deal.title || '',
+                  value: deal.value || '',
+                  probability: deal.probability || 50,
+                  stage: deal.stage || 'lead',
+                  expected_close_date: deal.expected_close_date || '',
+                  user_id: deal.user_id || null,
+                  contact_id: deal.contact_id || null,
+                  description: deal.description || '',
+                });
+                setErrors({});
+                setHasChanges(false);
+              }
+            }}
             className="px-4 py-2 border border-border rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors duration-150"
           >
             Reset
           </button>
           <button
             type="submit"
-            disabled={isSaving || !hasChanges}
+            disabled={isSaving}
             className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
           >
             {isSaving ? (

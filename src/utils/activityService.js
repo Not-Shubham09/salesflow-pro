@@ -1,5 +1,6 @@
 import { supabase, isDemoMode } from './supabase';
 import { localCrmStorage } from './localCrmStorage';
+import { isValidUUID } from './uuid';
 
 class ActivityService {
   // Get all activities for the current user
@@ -22,8 +23,8 @@ class ActivityService {
         .limit(limit);
 
       if (filters?.type) query = query.eq('type', filters.type);
-      if (filters?.contactId) query = query.eq('contact_id', filters.contactId);
-      if (filters?.dealId) query = query.eq('deal_id', filters.dealId);
+      if (filters?.contactId && isValidUUID(filters.contactId)) query = query.eq('contact_id', filters.contactId);
+      if (filters?.dealId && isValidUUID(filters.dealId)) query = query.eq('deal_id', filters.dealId);
       if (filters?.dateFrom) query = query.gte('activity_date', filters.dateFrom);
       if (filters?.dateTo) query = query.lte('activity_date', filters.dateTo);
 
@@ -95,20 +96,34 @@ class ActivityService {
     }
 
     try {
-      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
-      if (authError || !authUser) {
-        throw new Error('User not authenticated.');
+      let authUserId = null;
+      try {
+        const { data: { user: authUser } } = await supabase.auth.getUser();
+        authUserId = authUser?.id;
+      } catch {
+        // Fallback to active cached session
       }
 
+      if (!authUserId) {
+        try {
+          const cached = JSON.parse(localStorage.getItem('salesflow_active_user') || '{}');
+          authUserId = cached.id;
+        } catch {
+          // ignore
+        }
+      }
+
+      const rawDealId = activityData.dealId || activityData.deal_id;
+      const rawContactId = activityData.contactId || activityData.contact_id;
+
       const dataToInsert = {
-        user_id: authUser.id,
-        type: activityData.type,
-        subject: activityData.title || activityData.subject,
-        content: activityData.description || activityData.content,
+        user_id: authUserId || activityData.user_id,
+        type: activityData.type || 'note',
+        subject: activityData.title || activityData.subject || 'Activity note',
+        content: activityData.description || activityData.content || '',
         activity_date: activityData.timestamp || activityData.activity_date || new Date().toISOString(),
-        contact_id: activityData.contactId || activityData.contact_id || null,
-        deal_id: activityData.dealId || activityData.deal_id || null,
-        ...activityData.rest
+        contact_id: isValidUUID(rawContactId) ? rawContactId : null,
+        deal_id: isValidUUID(rawDealId) ? rawDealId : null,
       };
 
       const { data, error } = await supabase

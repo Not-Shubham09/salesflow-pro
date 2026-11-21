@@ -4,47 +4,62 @@ import Icon from "./AppIcon";
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, error: null };
   }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true };
+    return { hasError: true, error };
   }
 
   componentDidCatch(error, errorInfo) {
-    console.log("Error caught by ErrorBoundary:", error, errorInfo);
+    console.error("ErrorBoundary caught error:", error, errorInfo);
   }
+
+  handleReset = () => {
+    this.setState({ hasError: false, error: null });
+  };
 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-neutral-50">
-          <div className="text-center p-8 max-w-md">
-            <div className="flex justify-center items-center mb-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="42px" height="42px" viewBox="0 0 32 33" fill="none">
-                <path d="M16 28.5C22.6274 28.5 28 23.1274 28 16.5C28 9.87258 22.6274 4.5 16 4.5C9.37258 4.5 4 9.87258 4 16.5C4 23.1274 9.37258 28.5 16 28.5Z" stroke="#343330" stroke-width="2" stroke-miterlimit="10" />
-                <path d="M11.5 15.5C12.3284 15.5 13 14.8284 13 14C13 13.1716 12.3284 12.5 11.5 12.5C10.6716 12.5 10 13.1716 10 14C10 14.8284 10.6716 15.5 11.5 15.5Z" fill="#343330" />
-                <path d="M20.5 15.5C21.3284 15.5 22 14.8284 22 14C22 13.1716 21.3284 12.5 20.5 12.5C19.6716 12.5 19 13.1716 19 14C19 14.8284 19.6716 15.5 20.5 15.5Z" fill="#343330" />
-                <path d="M21 22.5C19.9625 20.7062 18.2213 19.5 16 19.5C13.7787 19.5 12.0375 20.7062 11 22.5" stroke="#343330" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
+        <div className="min-h-screen flex items-center justify-center bg-background px-4">
+          <div className="card max-w-md w-full p-8 text-center border border-border shadow-xl">
+            <div className="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-rose-100">
+              <Icon name="AlertTriangle" size={28} />
             </div>
-            <div className="flex flex-col gap-1 text-center">
-              <h1 className="text-2xl font-medium text-neutral-800">Something went wrong</h1>
-              <p className="text-neutral-600 text-base w w-8/12 mx-auto">We encountered an unexpected error while processing your request.</p>
-            </div>
-            <div className="flex justify-center items-center mt-6">
+            
+            <h1 className="text-xl font-bold text-text-primary tracking-tight">
+              Something went wrong
+            </h1>
+            <p className="text-text-secondary text-sm mt-2 mb-6 leading-relaxed">
+              An unexpected error occurred while rendering this page. You can recover by refreshing or returning to the dashboard.
+            </p>
+
+            {this.state.error && (
+              <div className="bg-surface-hover p-3 rounded-lg text-left text-xs font-mono text-text-tertiary mb-6 max-h-28 overflow-y-auto border border-border">
+                {this.state.error.message || String(this.state.error)}
+              </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                onClick={this.handleReset}
+                className="w-full sm:w-auto px-4 py-2 border border-border rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover text-sm font-medium transition-colors"
+              >
+                Try Again
+              </button>
               <button
                 onClick={() => {
-                  window.location.href = "/";
+                  window.location.href = "/sales-dashboard";
                 }}
-                className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded flex items-center gap-2 transition-colors duration-200 shadow-sm"
+                className="w-full sm:w-auto btn-primary text-sm font-medium flex items-center justify-center space-x-2"
               >
-                <Icon name="ArrowLeft" size={18} color="#fff" />
-                Back
+                <Icon name="Home" size={16} />
+                <span>Return to Dashboard</span>
               </button>
             </div>
-          </div >
-        </div >
+          </div>
+        </div>
       );
     }
 

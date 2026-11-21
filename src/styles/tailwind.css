@@ -84,17 +84,25 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-primary text-text-inverse px-4 py-2 rounded-lg font-medium transition-all duration-150 ease-out hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+    @apply bg-primary text-text-inverse px-4 py-2 rounded-lg font-medium shadow-xs transition-all duration-150 ease-out hover:bg-primary-700 hover:shadow-sm active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
   }
-.btn-secondary  {
-    @apply bg-secondary text-text-inverse px-4 py-2 rounded-lg font-medium transition-all duration-150 ease-out hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-offset-2;
+  .btn-secondary {
+    @apply bg-surface text-text-primary border border-border px-4 py-2 rounded-lg font-medium shadow-xs transition-all duration-150 ease-out hover:bg-surface-hover hover:border-border-dark active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary-500/20;
   }
   
   .card {
-    @apply bg-surface rounded-lg shadow-base border border-border;
+    @apply bg-surface rounded-xl shadow-xs border border-border/90 transition-all;
+  }
+
+  .card-hover {
+    @apply hover:shadow-md hover:border-slate-300 hover:-translate-y-0.5 transition-all duration-200;
   }
   
   .input-field {
-    @apply w-full px-3 py-2 border border-border rounded-md bg-surface text-text-primary placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-150 ease-out;
+    @apply w-full px-3 py-2 border border-border/90 rounded-lg bg-surface text-text-primary text-sm placeholder-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all duration-150 ease-out;
+  }
+
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wide;
   }
 }

@@ -169,8 +169,8 @@ const ActivityTimeline = () => {
     }
   };
 
-  // Show loading state
-  if (authLoading || loading) {
+  // Show loading state only while checking session
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -179,7 +179,7 @@ const ActivityTimeline = () => {
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
                 <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                <p className="text-text-secondary">Loading activity timeline...</p>
+                <p className="text-text-secondary">Initializing Activity Timeline...</p>
               </div>
             </div>
           </div>
@@ -192,25 +192,25 @@ const ActivityTimeline = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="pt-20 px-6 pb-8">
-        <div className="max-w-4xl mx-auto">
+      <main className="pt-20 px-4 sm:px-6 pb-12">
+        <div className="max-w-7xl mx-auto">
           <Breadcrumb />
           
           {/* Page Header */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 pb-4 border-b border-border/80">
             <div>
-              <h1 className="text-3xl font-bold text-text-primary mb-2">Activity Timeline</h1>
-              <p className="text-text-secondary">
-                Track all sales activities and interactions
+              <h1 className="text-2xl font-bold text-text-primary tracking-tight font-heading">Activity Timeline</h1>
+              <p className="text-text-secondary text-xs sm:text-sm mt-0.5">
+                Audit trail of team interactions, stage transitions, and client touchpoints
               </p>
             </div>
             
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="btn-primary mt-4 lg:mt-0"
+              className="btn-primary mt-3 sm:mt-0 text-xs sm:text-sm inline-flex items-center space-x-1.5 shadow-xs"
             >
-              <Icon name="Plus" size={16} className="mr-2" />
-              Add Activity
+              <Icon name="Plus" size={15} />
+              <span>Add Activity</span>
             </button>
           </div>
 
@@ -234,7 +234,22 @@ const ActivityTimeline = () => {
                 </div>
               )}
 
-              {filteredActivities?.length === 0 ? (
+              {loading && filteredActivities?.length === 0 ? (
+                <div className="space-y-4">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="card p-5 animate-pulse">
+                      <div className="flex items-center space-x-3 mb-3">
+                        <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                        <div className="space-y-1.5 flex-1">
+                          <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                          <div className="h-3 bg-gray-200 rounded w-1/4"></div>
+                        </div>
+                      </div>
+                      <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                    </div>
+                  ))}
+                </div>
+              ) : filteredActivities?.length === 0 ? (
                 <div className="card p-8 text-center">
                   <Icon name="Calendar" size={48} className="text-text-secondary mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-text-primary mb-2">No Activities Found</h3>

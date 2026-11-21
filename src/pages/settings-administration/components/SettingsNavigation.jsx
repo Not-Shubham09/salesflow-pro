@@ -43,35 +43,33 @@ const SettingsNavigation = ({ activeSection, onSectionChange }) => {
   ];
 
   return (
-    <nav className="w-80 bg-surface border-r border-border h-full">
-      <div className="p-6">
-        <h2 className="text-lg font-semibold text-text-primary mb-6">Settings Categories</h2>
-        <ul className="space-y-2">
+    <nav className="w-72 bg-surface border-r border-border/80 h-full">
+      <div className="p-4 sm:p-5">
+        <h2 className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider mb-3">System Settings</h2>
+        <ul className="space-y-1.5">
           {navigationItems?.map((item) => (
             <li key={item?.id}>
               <button
                 onClick={() => onSectionChange?.(item?.id)}
-                className={`w-full text-left p-4 rounded-lg transition-all duration-150 ease-smooth group ${
+                className={`w-full text-left p-3 rounded-xl transition-all duration-150 group cursor-pointer ${
                   activeSection === item?.id
-                    ? 'bg-primary-50 border border-primary-100 text-primary' :'text-text-secondary hover:text-text-primary hover:bg-surface-hover'
+                    ? 'bg-primary-50/80 border border-primary-200 text-primary shadow-xs' 
+                    : 'text-text-secondary hover:text-text-primary hover:bg-slate-50/80 border border-transparent'
                 }`}
               >
-                <div className="flex items-start space-x-3">
-                  <Icon
-                    name={item?.icon}
-                    size={20}
-                    className={`mt-0.5 ${
-                      activeSection === item?.id
-                        ? 'text-primary' :'text-text-tertiary group-hover:text-text-secondary'
-                    }`}
-                  />
-                  <div className="flex-1">
-                    <div className={`font-medium text-sm ${
-                      activeSection === item?.id ? 'text-primary' : ''
+                <div className="flex items-start space-x-2.5">
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                    activeSection === item?.id ? 'bg-primary text-white' : 'bg-slate-100 text-text-tertiary group-hover:text-text-primary'
+                  }`}>
+                    <Icon name={item?.icon} size={15} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className={`font-semibold text-xs truncate ${
+                      activeSection === item?.id ? 'text-primary' : 'text-text-primary'
                     }`}>
                       {item?.label}
                     </div>
-                    <div className="text-xs text-text-tertiary mt-1 leading-tight">
+                    <div className="text-[11px] text-text-tertiary mt-0.5 leading-tight truncate">
                       {item?.description}
                     </div>
                   </div>

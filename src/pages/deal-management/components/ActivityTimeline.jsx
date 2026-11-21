@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import activityService from '../../../utils/activityService';
+import { isValidUUID } from '../../../utils/uuid';
 import Icon from 'components/AppIcon';
 
 const ActivityTimeline = ({ contact, dealId }) => {
@@ -54,6 +55,7 @@ const ActivityTimeline = ({ contact, dealId }) => {
 
   const handleAddActivity = async () => {
     if (newActivity.title.trim()) {
+      const validDealId = isValidUUID(dealId) ? dealId : null;
       const activity = {
         id: Date.now(),
         type: newActivity.type,
@@ -62,7 +64,7 @@ const ActivityTimeline = ({ contact, dealId }) => {
         timestamp: new Date().toISOString(),
         user: "You",
         contactId: contact?.id,
-        dealId: dealId
+        dealId: validDealId
       };
       
       const { success, error } = await activityService.createActivity(activity);
@@ -83,16 +85,19 @@ const ActivityTimeline = ({ contact, dealId }) => {
   }, [contact?.id, dealId]);
 
   const refreshActivities = async () => {
-    if (contact?.id || dealId) {
+    const validDealId = isValidUUID(dealId) ? dealId : null;
+    if (contact?.id || validDealId) {
       const { data, success, error } = await activityService.getActivityTimeline(50, {
         contactId: contact?.id,
-        dealId: dealId
+        dealId: validDealId
       });
       if (success) {
-        setActivities(data);
+        setActivities(data || []);
       } else {
         console.error('Failed to fetch activities:', error);
       }
+    } else {
+      setActivities([]);
     }
   };
 

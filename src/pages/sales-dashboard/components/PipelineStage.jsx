@@ -30,20 +30,20 @@ const PipelineStage = ({ stage, totalValue, weightedValue }) => {
   };
 
   return (
-    <div className={`rounded-xl border p-3 flex flex-col ${getStageColor(stage.id)}`}>
+    <div className={`rounded-xl border p-3.5 flex flex-col w-[260px] min-w-[260px] flex-shrink-0 ${getStageColor(stage.id)}`}>
       {/* Stage Header */}
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center space-x-1.5">
           <Icon name={getStageIcon(stage.id)} size={14} className="text-text-secondary" />
           <h3 className="font-semibold text-xs text-text-primary capitalize">{stage.title}</h3>
         </div>
-        <span className="text-[11px] font-bold px-1.5 py-0.2 bg-surface rounded-full border border-border text-text-secondary">
+        <span className="text-[11px] font-bold px-2 py-0.5 bg-surface rounded-full border border-border text-text-secondary shadow-xs">
           {stage.deals.length}
         </span>
       </div>
 
       {/* Stage Metrics */}
-      <div className="mb-3 space-y-0.5 text-[11px] text-text-secondary pb-2 border-b border-border/60">
+      <div className="mb-3 space-y-0.5 text-[11px] text-text-secondary pb-2.5 border-b border-border/60">
         <div className="flex justify-between">
           <span>Total:</span>
           <span className="font-semibold text-text-primary">
@@ -64,7 +64,7 @@ const PipelineStage = ({ stage, totalValue, weightedValue }) => {
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`min-h-[220px] flex-1 space-y-2.5 transition-colors rounded-lg p-1 ${
+            className={`min-h-[280px] flex-1 space-y-2.5 transition-colors rounded-lg p-1 ${
               snapshot.isDraggingOver ? 'bg-primary-50/50' : ''
             }`}
           >
@@ -75,7 +75,7 @@ const PipelineStage = ({ stage, totalValue, weightedValue }) => {
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
-                    className={`bg-surface rounded-lg p-3 border border-border shadow-xs cursor-grab active:cursor-grabbing transition-all hover:shadow-md hover:border-primary-200 group ${
+                    className={`bg-surface rounded-xl p-3 border border-border/90 shadow-xs cursor-grab active:cursor-grabbing transition-all hover:shadow-md hover:border-slate-300 group ${
                       snapshot.isDragging ? 'rotate-2 shadow-lg ring-2 ring-primary ring-opacity-50' : ''
                     }`}
                   >
@@ -83,7 +83,7 @@ const PipelineStage = ({ stage, totalValue, weightedValue }) => {
                     <div className="flex items-start justify-between mb-1.5">
                       <Link
                         to={`/deal-management/${deal.id}`}
-                        className="text-xs font-semibold text-text-primary line-clamp-2 hover:text-primary transition-colors flex-1"
+                        className="text-xs font-semibold text-text-primary line-clamp-2 hover:text-primary transition-colors flex-1 pr-1"
                         onClick={(e) => e.stopPropagation()}
                       >
                         {deal.title}
@@ -93,23 +93,23 @@ const PipelineStage = ({ stage, totalValue, weightedValue }) => {
 
                     {/* Deal Value */}
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-bold text-text-primary">
+                      <span className="text-sm font-bold text-text-primary font-heading">
                         ${((deal.value || 0) / 1000).toFixed(0)}k
                       </span>
-                      <span className="text-[10px] px-1.5 py-0.5 bg-primary-50 text-primary font-medium rounded-full">
+                      <span className="text-[10px] px-2 py-0.5 bg-primary-50 text-primary font-semibold rounded-full border border-primary-100/60">
                         {deal.probability}%
                       </span>
                     </div>
 
                     {/* Contact Info */}
-                    <div className="flex items-center space-x-1.5 mb-2 pt-1 border-t border-border/40">
+                    <div className="flex items-center space-x-2 mb-2 pt-1.5 border-t border-border/40">
                       <Image
                         src={deal.avatar}
                         alt={deal.contact}
-                        className="w-5 h-5 rounded-full object-cover"
+                        className="w-5 h-5 rounded-full object-cover border border-border"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-[11px] font-medium text-text-primary truncate">
+                        <p className="text-[11px] font-semibold text-text-primary truncate">
                           {deal.contact}
                         </p>
                         <p className="text-[10px] text-text-tertiary truncate">

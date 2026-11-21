@@ -4,10 +4,12 @@ import Header from 'components/ui/Header';
 import Breadcrumb from 'components/ui/Breadcrumb';
 import Icon from 'components/AppIcon';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../contexts/ToastContext';
 import dealService from '../../utils/dealService';
 import contactService from '../../utils/contactService';
 import taskService from '../../utils/taskService';
 import TaskFormModal from '../../components/TaskFormModal';
+import CreateDealModal from '../../components/CreateDealModal';
 
 import DealForm from './components/DealForm';
 import ActivityTimeline from './components/ActivityTimeline';
@@ -15,27 +17,44 @@ import DealActions from './components/DealActions';
 
 const DealManagement = () => {
   const { user } = useAuth();
+  const toast = useToast();
   const { id } = useParams();
   const dealId = id;
   const navigate = useNavigate();
 
   const [allDeals, setAllDeals] = useState([]);
-  const [selectedDeal, setSelectedDeal] = useState(null);
+  const [selectedDeal, setSelectedDeal] = useState(() => {
+    if (dealId === 'new') {
+      return {
+        title: '',
+        name: '',
+        value: '',
+        probability: 50,
+        stage: 'lead',
+        expected_close_date: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
+        user_id: user?.id || 'usr-mgr-1',
+        contact_id: null,
+        description: ''
+      };
+    }
+    return null;
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [dealToDelete, setDealToDelete] = useState(null);
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [stageFilter, setStageFilter] = useState('all');
 
   const stages = [
-    { value: "lead", label: "Lead", color: "bg-gray-100 text-gray-800" },
-    { value: "qualified", label: "Qualified", color: "bg-blue-100 text-blue-800" },
-    { value: "proposal", label: "Proposal", color: "bg-yellow-100 text-yellow-800" },
-    { value: "negotiation", label: "Negotiation", color: "bg-orange-100 text-orange-800" },
-    { value: "closed_won", label: "Closed Won", color: "bg-green-100 text-green-800" },
-    { value: "closed_lost", label: "Closed Lost", color: "bg-red-100 text-red-800" }
+    { value: "lead", label: "Lead", color: "bg-slate-100 text-slate-700 border border-slate-200" },
+    { value: "qualified", label: "Qualified", color: "bg-blue-50 text-blue-700 border border-blue-200" },
+    { value: "proposal", label: "Proposal", color: "bg-amber-50 text-amber-700 border border-amber-200" },
+    { value: "negotiation", label: "Negotiation", color: "bg-indigo-50 text-indigo-700 border border-indigo-200" },
+    { value: "closed_won", label: "Closed Won", color: "bg-emerald-50 text-emerald-700 border border-emerald-200" },
+    { value: "closed_lost", label: "Closed Lost", color: "bg-rose-50 text-rose-700 border border-rose-200" }
   ];
 
   const [salesReps, setSalesReps] = useState([
@@ -107,12 +126,14 @@ const DealManagement = () => {
       }
 
       if (result.success) {
+        toast.success(`Deal "${result.data?.title || dealData.title}" saved successfully!`);
         navigate('/deal-management');
       } else {
-        alert(result.error || 'Failed to save deal');
+        toast.error(result.error || 'Failed to save deal');
       }
     } catch (error) {
       console.error('Error saving deal:', error);
+      toast.error('An unexpected error occurred while saving.');
     } finally {
       setIsSaving(false);
     }
@@ -125,6 +146,7 @@ const DealManagement = () => {
     try {
       const result = await dealService.deleteDeal(targetId);
       if (result.success) {
+        toast.success('Deal deleted successfully');
         setShowDeleteModal(false);
         setDealToDelete(null);
         if (dealId) {
@@ -132,9 +154,12 @@ const DealManagement = () => {
         } else {
           setAllDeals(prev => prev.filter(d => String(d.id) !== String(targetId)));
         }
+      } else {
+        toast.error(result.error || 'Failed to delete deal');
       }
     } catch (error) {
       console.error('Error deleting deal:', error);
+      toast.error('Failed to delete deal');
     }
   };
 
@@ -203,24 +228,23 @@ const DealManagement = () => {
 
   const totalValue = filteredDeals.reduce((sum, d) => sum + parseFloat(d.value || 0), 0);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <main className="pt-20 px-6">
-          <div className="max-w-7xl mx-auto flex items-center justify-center h-96">
-            <div className="flex items-center space-x-3">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              <span className="text-text-secondary">Loading deals...</span>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   // --- DETAIL / FORM VIEW (when dealId is in URL) ---
   if (dealId) {
+    if (isLoading && !selectedDeal && dealId !== 'new') {
+      return (
+        <div className="min-h-screen bg-background">
+          <Header />
+          <main className="pt-20 px-6">
+            <div className="max-w-7xl mx-auto flex items-center justify-center h-96">
+              <div className="flex items-center space-x-3">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                <span className="text-text-secondary">Loading deal details...</span>
+              </div>
+            </div>
+          </main>
+        </div>
+      );
+    }
     if (!selectedDeal && dealId !== 'new') {
       return (
         <div className="min-h-screen bg-background">
@@ -250,7 +274,7 @@ const DealManagement = () => {
               <Link to="/deal-management" className="hover:text-primary">Deals</Link>
               <span>/</span>
               <span className="text-text-primary font-medium">
-                {selectedDeal.title || selectedDeal.name || 'New Deal'}
+                {selectedDeal?.title || selectedDeal?.name || 'New Opportunity'}
               </span>
             </div>
 
@@ -265,10 +289,10 @@ const DealManagement = () => {
                     <Icon name="ArrowLeft" size={18} />
                   </button>
                   <h1 className="text-2xl font-bold text-text-primary">
-                    {selectedDeal.title || selectedDeal.name || 'Create New Opportunity'}
+                    {selectedDeal?.title || selectedDeal?.name || 'Create New Opportunity'}
                   </h1>
                 </div>
-                {selectedDeal.id && (
+                {selectedDeal?.id && (
                   <div className="flex items-center space-x-4 text-xs text-text-secondary mt-2 ml-11">
                     <span>Deal ID: #{selectedDeal.id}</span>
                     <span>•</span>
@@ -280,10 +304,10 @@ const DealManagement = () => {
               </div>
 
               <DealActions
-                onSave={() => {}}
-                onDelete={selectedDeal.id ? () => setShowDeleteModal(true) : null}
-                onClone={selectedDeal.id ? handleCloneDeal : null}
-                onCreateTask={selectedDeal.id ? handleCreateTask : null}
+                onSave={null}
+                onDelete={selectedDeal?.id ? () => setShowDeleteModal(true) : null}
+                onClone={selectedDeal?.id ? handleCloneDeal : null}
+                onCreateTask={selectedDeal?.id ? handleCreateTask : null}
                 isSaving={isSaving}
               />
             </div>
@@ -302,8 +326,8 @@ const DealManagement = () => {
 
               <div className="xl:col-span-4 space-y-6">
                 <ActivityTimeline
-                  dealId={selectedDeal.id}
-                  contact={selectedDeal.contact_id ? contacts.find(c => c.id === selectedDeal.contact_id) : null}
+                  dealId={selectedDeal?.id || null}
+                  contact={selectedDeal?.contact_id ? contacts.find(c => c.id === selectedDeal.contact_id) : null}
                 />
               </div>
             </div>
@@ -346,8 +370,8 @@ const DealManagement = () => {
             onClose={() => setShowTaskModal(false)}
             onSave={handleSaveTask}
             initialData={{
-              deal_id: selectedDeal.id,
-              contact_id: selectedDeal.contact_id || null,
+              deal_id: selectedDeal?.id,
+              contact_id: selectedDeal?.contact_id || null,
               assigned_to: user?.id,
               status: 'pending',
               priority: 'medium',
@@ -374,7 +398,7 @@ const DealManagement = () => {
             </div>
             <div className="mt-4 md:mt-0 flex items-center space-x-3">
               <button
-                onClick={() => navigate('/deal-management/new')}
+                onClick={() => setIsCreateModalOpen(true)}
                 className="btn-primary flex items-center space-x-2 shadow-sm"
               >
                 <Icon name="Plus" size={18} />
@@ -385,57 +409,60 @@ const DealManagement = () => {
 
           {/* Quick Metrics Bar */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <div className="card p-4 flex items-center justify-between">
+            <div className="card p-4 border border-border/80 hover:shadow-md hover:border-slate-300 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-text-secondary">Total Deals</p>
-                <p className="text-2xl font-bold text-text-primary mt-1">{filteredDeals.length}</p>
+                <p className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Total Deals</p>
+                <p className="text-2xl font-bold text-text-primary mt-1 font-heading tracking-tight">{filteredDeals.length}</p>
+                <p className="text-[11px] text-text-tertiary mt-0.5">Active in pipeline</p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-primary-50 flex items-center justify-center text-primary">
+              <div className="w-10 h-10 rounded-xl bg-primary-50 text-primary flex items-center justify-center border border-primary-100/50 shadow-xs">
                 <Icon name="Target" size={20} />
               </div>
             </div>
-            <div className="card p-4 flex items-center justify-between">
+            <div className="card p-4 border border-border/80 hover:shadow-md hover:border-slate-300 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-text-secondary">Pipeline Value</p>
-                <p className="text-2xl font-bold text-text-primary mt-1">{formatCurrency(totalValue)}</p>
+                <p className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Pipeline Value</p>
+                <p className="text-2xl font-bold text-text-primary mt-1 font-heading tracking-tight">{formatCurrency(totalValue)}</p>
+                <p className="text-[11px] text-emerald-600 mt-0.5 font-medium">Unweighted total</p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-success-50 flex items-center justify-center text-success">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100/50 shadow-xs">
                 <Icon name="DollarSign" size={20} />
               </div>
             </div>
-            <div className="card p-4 flex items-center justify-between">
+            <div className="card p-4 border border-border/80 hover:shadow-md hover:border-slate-300 hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-text-secondary">Avg Deal Size</p>
-                <p className="text-2xl font-bold text-text-primary mt-1">
+                <p className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Avg Deal Size</p>
+                <p className="text-2xl font-bold text-text-primary mt-1 font-heading tracking-tight">
                   {formatCurrency(filteredDeals.length > 0 ? totalValue / filteredDeals.length : 0)}
                 </p>
+                <p className="text-[11px] text-text-tertiary mt-0.5">Per opportunity</p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-secondary-50 flex items-center justify-center text-secondary">
+              <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100/50 shadow-xs">
                 <Icon name="TrendingUp" size={20} />
               </div>
             </div>
           </div>
 
           {/* Search & Filters */}
-          <div className="card p-4 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="card p-4 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 border border-border/90">
             <div className="relative flex-1 max-w-md">
-              <Icon name="Search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
+              <Icon name="Search" size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-text-tertiary" />
               <input
                 type="text"
                 placeholder="Search deals by title, company, contact..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="input-field pl-10 text-sm"
+                className="input-field pl-9.5 text-xs sm:text-sm"
               />
             </div>
 
-            <div className="flex flex-wrap items-center gap-1">
+            <div className="flex flex-wrap items-center gap-1 bg-slate-100/70 p-1 rounded-xl border border-border/60">
               <button
                 onClick={() => setStageFilter('all')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
                   stageFilter === 'all'
-                    ? 'bg-primary text-white'
-                    : 'text-text-secondary hover:bg-surface-hover'
+                    ? 'bg-surface text-primary font-semibold shadow-xs border border-border/80 ring-1 ring-primary/10'
+                    : 'text-text-secondary hover:text-text-primary hover:bg-surface/60'
                 }`}
               >
                 All ({allDeals.length})
@@ -446,10 +473,10 @@ const DealManagement = () => {
                   <button
                     key={st.value}
                     onClick={() => setStageFilter(st.value)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
                       stageFilter === st.value
-                        ? 'bg-primary text-white'
-                        : 'text-text-secondary hover:bg-surface-hover'
+                        ? 'bg-surface text-primary font-semibold shadow-xs border border-border/80 ring-1 ring-primary/10'
+                        : 'text-text-secondary hover:text-text-primary hover:bg-surface/60'
                     }`}
                   >
                     {st.label} ({count})
@@ -460,11 +487,11 @@ const DealManagement = () => {
           </div>
 
           {/* Deals Table */}
-          <div className="card overflow-hidden">
+          <div className="card overflow-hidden border border-border/90 shadow-xs">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-surface-hover border-b border-border text-xs font-semibold text-text-secondary uppercase tracking-wider">
+                  <tr className="bg-slate-50/80 border-b border-border/80 text-[11px] font-semibold text-text-secondary uppercase tracking-wider">
                     <th className="py-3 px-4">Deal Title</th>
                     <th className="py-3 px-4">Contact & Company</th>
                     <th className="py-3 px-4">Value</th>
@@ -474,8 +501,20 @@ const DealManagement = () => {
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border text-sm">
-                  {filteredDeals.length === 0 ? (
+                <tbody className="divide-y divide-border/70 text-sm">
+                  {isLoading ? (
+                    [...Array(5)].map((_, i) => (
+                      <tr key={i} className="animate-pulse">
+                        <td className="py-4 px-4"><div className="h-4 bg-gray-200 rounded w-44"></div></td>
+                        <td className="py-4 px-4"><div className="h-4 bg-gray-200 rounded w-28"></div></td>
+                        <td className="py-4 px-4"><div className="h-4 bg-gray-200 rounded w-20"></div></td>
+                        <td className="py-4 px-4"><div className="h-5 bg-gray-200 rounded-full w-20"></div></td>
+                        <td className="py-4 px-4"><div className="h-2 bg-gray-200 rounded w-24"></div></td>
+                        <td className="py-4 px-4"><div className="h-4 bg-gray-200 rounded w-24"></div></td>
+                        <td className="py-4 px-4 text-right"><div className="h-4 bg-gray-200 rounded w-12 ml-auto"></div></td>
+                      </tr>
+                    ))
+                  ) : filteredDeals.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="py-12 text-center text-text-secondary">
                         <Icon name="Inbox" size={36} className="mx-auto mb-2 text-text-tertiary" />
@@ -594,6 +633,15 @@ const DealManagement = () => {
           </div>
         </div>
       )}
+
+      {/* Create Deal Slide-over / Modal */}
+      <CreateDealModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={(newDeal) => {
+          setAllDeals((prev) => [newDeal, ...prev]);
+        }}
+      />
     </div>
   );
 };

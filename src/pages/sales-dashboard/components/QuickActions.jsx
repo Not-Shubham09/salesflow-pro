@@ -3,9 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import Icon from 'components/AppIcon';
 import dealService from '../../../utils/dealService';
 import contactService from '../../../utils/contactService';
+import { useToast } from '../../../contexts/ToastContext';
 
 const QuickActions = ({ onRefresh }) => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [showAddDealModal, setShowAddDealModal] = useState(false);
   const [showAddContactModal, setShowAddContactModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,12 +41,16 @@ const QuickActions = ({ onRefresh }) => {
       });
 
       if (res.success) {
+        toast.success(`Deal "${res.data?.title || dealForm.title}" created successfully!`);
         setShowAddDealModal(false);
         setDealForm({ title: '', value: '', stage: 'lead', probability: 25 });
         if (onRefresh) onRefresh();
+      } else {
+        toast.error(res.error || 'Failed to create deal');
       }
     } catch (err) {
       console.error('Failed to quick create deal:', err);
+      toast.error('Failed to create deal');
     } finally {
       setIsSubmitting(false);
     }
@@ -66,12 +72,16 @@ const QuickActions = ({ onRefresh }) => {
       });
 
       if (res.success) {
+        toast.success(`Contact "${contactForm.firstName} ${contactForm.lastName}".trim() created!`);
         setShowAddContactModal(false);
         setContactForm({ firstName: '', lastName: '', email: '', company: '', phone: '' });
         if (onRefresh) onRefresh();
+      } else {
+        toast.error(res.error || 'Failed to create contact');
       }
     } catch (err) {
       console.error('Failed to quick create contact:', err);
+      toast.error('Failed to create contact');
     } finally {
       setIsSubmitting(false);
     }
@@ -80,26 +90,26 @@ const QuickActions = ({ onRefresh }) => {
   const quickActions = [
     {
       id: 'add-deal',
-      title: 'Add Deal',
+      title: 'New Deal',
       description: 'Create opportunity',
       icon: 'Plus',
-      color: 'bg-primary text-white hover:bg-primary-700',
+      badgeBg: 'bg-primary-50 text-primary',
       action: () => setShowAddDealModal(true)
     },
     {
       id: 'add-contact',
-      title: 'Add Contact',
+      title: 'New Contact',
       description: 'Register customer',
       icon: 'UserPlus',
-      color: 'bg-success text-white hover:bg-success-600',
+      badgeBg: 'bg-emerald-50 text-emerald-600',
       action: () => setShowAddContactModal(true)
     },
     {
       id: 'log-activity',
-      title: 'View Timeline',
-      description: 'Activity feed',
+      title: 'Timeline',
+      description: 'Activity stream',
       icon: 'Clock',
-      color: 'bg-secondary text-white hover:bg-secondary-600',
+      badgeBg: 'bg-indigo-50 text-indigo-600',
       action: () => navigate('/activity-timeline')
     },
     {
@@ -107,57 +117,54 @@ const QuickActions = ({ onRefresh }) => {
       title: 'Analytics',
       description: 'Conversion rates',
       icon: 'TrendingUp',
-      color: 'bg-accent text-white hover:bg-accent-600',
+      badgeBg: 'bg-amber-50 text-amber-600',
       action: () => navigate('/pipeline-analytics')
     }
   ];
 
   const shortcuts = [
-    { title: 'Deal Management', path: '/deal-management', icon: 'Target' },
-    { title: 'Contact Management', path: '/contact-management', icon: 'Users' },
+    { title: 'Deal Opportunities', path: '/deal-management', icon: 'Target' },
+    { title: 'Contact Directory', path: '/contact-management', icon: 'Users' },
     { title: 'Pipeline Analytics', path: '/pipeline-analytics', icon: 'TrendingUp' },
-    { title: 'Activity Timeline', path: '/activity-timeline', icon: 'Clock' },
-    { title: 'System Administration', path: '/settings-administration', icon: 'Settings' }
+    { title: 'Activity Audit Log', path: '/activity-timeline', icon: 'Clock' },
+    { title: 'System Settings', path: '/settings-administration', icon: 'Settings' }
   ];
 
   return (
-    <div className="card p-5">
-      <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wider mb-4">
-        Quick Actions
-      </h3>
+    <div className="card p-3 sm:p-3.5 border border-border/90 mb-6">
+      <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
+        {/* Left: Quick Action Buttons */}
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider mr-1 hidden sm:inline">
+            Quick Actions:
+          </span>
+          {quickActions.map((action) => (
+            <button
+              key={action.id}
+              onClick={action.action}
+              className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-lg border border-border/80 bg-slate-50/70 hover:bg-surface hover:border-slate-300 hover:shadow-xs transition-all duration-150 cursor-pointer group"
+            >
+              <div className={`w-5 h-5 rounded flex items-center justify-center ${action.badgeBg} group-hover:scale-105 transition-transform`}>
+                <Icon name={action.icon} size={12} />
+              </div>
+              <span className="font-semibold text-xs text-text-primary group-hover:text-primary transition-colors">
+                {action.title}
+              </span>
+            </button>
+          ))}
+        </div>
 
-      {/* Action Buttons */}
-      <div className="grid grid-cols-2 gap-2.5 mb-5">
-        {quickActions.map((action) => (
-          <button
-            key={action.id}
-            onClick={action.action}
-            className={`${action.color} p-3 rounded-lg transition-all text-left shadow-xs cursor-pointer flex flex-col justify-between`}
-          >
-            <div className="flex items-center space-x-2 mb-1.5">
-              <Icon name={action.icon} size={16} />
-              <span className="font-semibold text-xs">{action.title}</span>
-            </div>
-            <p className="text-[10px] opacity-85 leading-tight">{action.description}</p>
-          </button>
-        ))}
-      </div>
-
-      {/* Quick Navigation */}
-      <div className="border-t border-border pt-4">
-        <h4 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">
-          Shortcuts
-        </h4>
-        <div className="space-y-1">
+        {/* Right: Compact Workspace Navigation */}
+        <div className="flex items-center space-x-1 overflow-x-auto text-xs border-t xl:border-t-0 pt-2 xl:pt-0 border-border/60">
+          <span className="text-[11px] text-text-tertiary hidden 2xl:inline font-medium mr-1.5">Workspaces:</span>
           {shortcuts.map((shortcut) => (
             <Link
               key={shortcut.path}
               to={shortcut.path}
-              className="flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors text-xs font-medium"
+              className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-text-secondary hover:text-primary hover:bg-slate-100/70 transition-colors text-xs font-medium whitespace-nowrap"
             >
-              <Icon name={shortcut.icon} size={14} className="text-text-tertiary" />
-              <span>{shortcut.title}</span>
-              <Icon name="ChevronRight" size={12} className="ml-auto text-text-tertiary" />
+              <Icon name={shortcut.icon} size={12} className="text-text-tertiary" />
+              <span>{shortcut.title.replace(' Management', '').replace(' Opportunities', '')}</span>
             </Link>
           ))}
         </div>

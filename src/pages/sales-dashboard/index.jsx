@@ -15,9 +15,11 @@ import QuickActions from './components/QuickActions';
 import UpcomingTasks from './components/UpcomingTasks';
 import PipelineStage from './components/PipelineStage';
 import PerformanceMetrics from './components/PerformanceMetrics';
+import CreateDealModal from '../../components/CreateDealModal';
 
 const SalesDashboard = () => {
   const { user, userProfile, loading: authLoading } = useAuth();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedDateRange, setSelectedDateRange] = useState('thisMonth');
   const [lastUpdated, setLastUpdated] = useState(new Date());
   const [pipelineData, setPipelineData] = useState({
@@ -39,13 +41,15 @@ const SalesDashboard = () => {
     { month: 'Jun', forecast: 750000, actual: 710000 }
   ]);
   const [performanceData, setPerformanceData] = useState({
-    quota: userProfile?.quota_amount || 2500000,
-    achieved: 1850000,
-    percentage: 74,
-    dealsWon: 23,
-    dealsLost: 8,
-    avgDealSize: 85000,
-    conversionRate: 28.5
+    quota: userProfile?.quota_amount ?? 0,
+    achieved: 0,
+    percentage: 0,
+    dealsWon: 0,
+    dealsLost: 0,
+    avgDealSize: 0,
+    conversionRate: 0,
+    activePipeline: 0,
+    activeDealCount: 0
   });
   const [upcomingTasks, setUpcomingTasks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -198,7 +202,7 @@ const SalesDashboard = () => {
     }).format(val || 0);
   };
 
-  if (authLoading || loading) {
+  if (authLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -207,7 +211,7 @@ const SalesDashboard = () => {
             <div className="flex items-center justify-center h-64">
               <div className="text-center">
                 <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-                <p className="text-text-secondary text-sm">Loading dashboard analytics...</p>
+                <p className="text-text-secondary text-sm">Initializing CRM session...</p>
               </div>
             </div>
           </div>
@@ -246,122 +250,147 @@ const SalesDashboard = () => {
                 <Icon name="RefreshCw" size={14} />
                 <span>Refresh</span>
               </button>
+              <button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="btn-primary text-xs flex items-center space-x-1.5 px-3 py-1.5 shadow-xs"
+                title="Create a new opportunity"
+              >
+                <Icon name="Plus" size={14} />
+                <span>New Deal</span>
+              </button>
             </div>
           </div>
 
           {/* Key Metrics Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div className="card p-5 border border-border hover:shadow-md transition-shadow">
+            <div className="card p-5 border border-border/80 hover:shadow-md hover:border-slate-300 hover:-translate-y-0.5 transition-all duration-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Total Pipeline</p>
-                  <p className="text-2xl font-bold text-text-primary mt-1">
+                  <p className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Total Pipeline</p>
+                  <p className="text-2xl font-bold text-text-primary mt-1 font-heading tracking-tight">
                     {formatCurrency(totalPipelineValue)}
                   </p>
-                  <p className="text-[11px] text-text-tertiary mt-1">Across all active stages</p>
+                  <p className="text-[11px] text-text-tertiary mt-1 font-medium">Across all active stages</p>
                 </div>
-                <div className="w-11 h-11 bg-primary-50 text-primary rounded-xl flex items-center justify-center">
-                  <Icon name="TrendingUp" size={22} />
+                <div className="w-10 h-10 bg-primary-50 text-primary rounded-xl flex items-center justify-center border border-primary-100/50 shadow-xs">
+                  <Icon name="TrendingUp" size={20} />
                 </div>
               </div>
             </div>
             
-            <div className="card p-5 border border-border hover:shadow-md transition-shadow">
+            <div className="card p-5 border border-border/80 hover:shadow-md hover:border-slate-300 hover:-translate-y-0.5 transition-all duration-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Weighted Forecast</p>
-                  <p className="text-2xl font-bold text-text-primary mt-1">
+                  <p className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Weighted Forecast</p>
+                  <p className="text-2xl font-bold text-text-primary mt-1 font-heading tracking-tight">
                     {formatCurrency(weightedPipelineValue)}
                   </p>
-                  <p className="text-[11px] text-text-tertiary mt-1">Probability-adjusted</p>
+                  <p className="text-[11px] text-emerald-600 mt-1 font-medium">Probability-adjusted</p>
                 </div>
-                <div className="w-11 h-11 bg-success-50 text-success rounded-xl flex items-center justify-center">
-                  <Icon name="Target" size={22} />
-                </div>
-              </div>
-            </div>
-            
-            <div className="card p-5 border border-border hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Active Deals</p>
-                  <p className="text-2xl font-bold text-text-primary mt-1">
-                    {dealStats?.activeDealCount ?? 4}
-                  </p>
-                  <p className="text-[11px] text-text-tertiary mt-1">
-                    {dealStats?.closedWonCount ?? 1} won • {dealStats?.closedLostCount ?? 1} lost
-                  </p>
-                </div>
-                <div className="w-11 h-11 bg-secondary-50 text-secondary rounded-xl flex items-center justify-center">
-                  <Icon name="Briefcase" size={22} />
+                <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center border border-emerald-100/50 shadow-xs">
+                  <Icon name="Target" size={20} />
                 </div>
               </div>
             </div>
             
-            <div className="card p-5 border border-border hover:shadow-md transition-shadow">
+            <div className="card p-5 border border-border/80 hover:shadow-md hover:border-slate-300 hover:-translate-y-0.5 transition-all duration-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Quota Progress</p>
-                  <p className="text-2xl font-bold text-text-primary mt-1">
-                    {performanceData.percentage || 74}%
+                  <p className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Active Deals</p>
+                  <p className="text-2xl font-bold text-text-primary mt-1 font-heading tracking-tight">
+                    {dealStats?.activeDealCount ?? 0}
                   </p>
-                  <p className="text-[11px] text-text-tertiary mt-1">
-                    Target: {formatCurrency(performanceData.quota || 3500000)}
+                  <p className="text-[11px] text-text-tertiary mt-1 font-medium">
+                    <span className="text-emerald-700 font-semibold">{dealStats?.closedWonCount ?? 0} won</span> &bull; {dealStats?.closedLostCount ?? 0} lost
                   </p>
                 </div>
-                <div className="w-11 h-11 bg-accent-50 text-accent rounded-xl flex items-center justify-center">
-                  <Icon name="Award" size={22} />
+                <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center border border-indigo-100/50 shadow-xs">
+                  <Icon name="Briefcase" size={20} />
+                </div>
+              </div>
+            </div>
+            
+            <div className="card p-5 border border-border/80 hover:shadow-md hover:border-slate-300 hover:-translate-y-0.5 transition-all duration-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-semibold text-text-secondary uppercase tracking-wider">Quota Progress</p>
+                  <p className="text-2xl font-bold text-text-primary mt-1 font-heading tracking-tight">
+                    {performanceData.percentage ?? 0}%
+                  </p>
+                  <p className="text-[11px] text-text-tertiary mt-1 font-medium">
+                    Target: {formatCurrency(performanceData.quota ?? 0)}
+                  </p>
+                </div>
+                <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center border border-amber-100/50 shadow-xs">
+                  <Icon name="Award" size={20} />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Main Grid: Pipeline Kanban & Forecast on Left, Sidebar on Right */}
-          <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-            <div className="xl:col-span-8 space-y-6">
-              {/* Interactive Pipeline Kanban */}
-              <div className="card p-5 border border-border">
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h2 className="text-base font-bold text-text-primary font-heading">Sales Pipeline Board</h2>
-                    <p className="text-xs text-text-secondary">Drag deals between columns to transition lifecycle stages</p>
-                  </div>
-                </div>
-                
-                <DragDropContext onDragEnd={onDragEnd}>
-                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                    {Object.values(pipelineData).map((stage) => (
-                      <PipelineStage
-                        key={stage.id}
-                        stage={stage}
-                        totalValue={calculateStageTotal(stage)}
-                        weightedValue={calculateWeightedTotal(stage)}
-                      />
-                    ))}
-                  </div>
-                </DragDropContext>
-              </div>
+          {/* Compact Horizontal Quick Actions Toolbar */}
+          <QuickActions onRefresh={loadDashboardData} />
 
+          {/* Full-Width Interactive Sales Pipeline Board */}
+          <div className="card p-5 border border-border/90 mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
+              <div>
+                <h2 className="text-base font-bold text-text-primary font-heading">Sales Pipeline Board</h2>
+                <p className="text-xs text-text-secondary">Drag deals between columns to transition lifecycle stages</p>
+              </div>
+              <div className="flex items-center space-x-1.5 text-xs text-text-tertiary">
+                <span className="hidden sm:inline font-medium">Scroll to view all 6 stages</span>
+                <Icon name="ArrowRight" size={13} className="text-text-tertiary" />
+              </div>
+            </div>
+            
+            <DragDropContext onDragEnd={onDragEnd}>
+              <div className="flex items-start gap-4 overflow-x-auto pb-4 pt-1">
+                {Object.values(pipelineData).map((stage) => (
+                  <PipelineStage
+                    key={stage.id}
+                    stage={stage}
+                    totalValue={calculateStageTotal(stage)}
+                    weightedValue={calculateWeightedTotal(stage)}
+                  />
+                ))}
+              </div>
+            </DragDropContext>
+          </div>
+
+          {/* Bottom Grid: Analytics & Forecast on Left, Tasks & Activity Stream on Right */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-7 space-y-6">
               {/* Monthly Revenue Forecast Chart */}
-              <div className="card p-5 border border-border">
-                <div className="flex items-center justify-between mb-4">
+              <div className="card p-5 border border-border/90">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-2">
                   <div>
                     <h2 className="text-base font-bold text-text-primary font-heading">Revenue Forecast vs Actual</h2>
                     <p className="text-xs text-text-secondary">Trailing and projected monthly performance</p>
+                  </div>
+                  <div className="flex items-center space-x-4 text-xs font-medium">
+                    <div className="flex items-center space-x-1.5">
+                      <span className="w-2.5 h-2.5 rounded-sm bg-primary"></span>
+                      <span className="text-text-secondary">Forecast</span>
+                    </div>
+                    <div className="flex items-center space-x-1.5">
+                      <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500"></span>
+                      <span className="text-text-secondary">Actual Won</span>
+                    </div>
                   </div>
                 </div>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={revenueData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
-                      <XAxis dataKey="month" stroke="#9CA3AF" fontSize={12} />
-                      <YAxis stroke="#9CA3AF" fontSize={12} tickFormatter={(v) => `$${v / 1000}k`} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+                      <XAxis dataKey="month" stroke="#94A3B8" fontSize={12} tickLine={false} axisLine={{ stroke: '#E2E8F0' }} />
+                      <YAxis stroke="#94A3B8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v / 1000}k`} />
                       <Tooltip 
                         formatter={(value) => [formatCurrency(value), '']}
-                        contentStyle={{ backgroundColor: '#FFFFFF', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '12px' }}
+                        contentStyle={{ backgroundColor: '#FFFFFF', borderRadius: '8px', border: '1px solid #E2E8F0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.08)', fontSize: '12px' }}
                       />
-                      <Bar dataKey="forecast" fill="#1E40AF" name="Forecast" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="actual" fill="#10B981" name="Actual Won" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="forecast" fill="#1E40AF" name="Forecast" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                      <Bar dataKey="actual" fill="#10B981" name="Actual Won" radius={[4, 4, 0, 0]} maxBarSize={32} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -371,15 +400,21 @@ const SalesDashboard = () => {
               <PerformanceMetrics data={performanceData} />
             </div>
 
-            {/* Right Column: QuickActions, UpcomingTasks, RecentActivity */}
-            <div className="xl:col-span-4 space-y-6">
-              <QuickActions onRefresh={loadDashboardData} />
+            {/* Right Column: UpcomingTasks & RecentActivity */}
+            <div className="lg:col-span-5 space-y-6">
               <UpcomingTasks tasks={upcomingTasks} />
               <RecentActivity activities={recentActivities} />
             </div>
           </div>
         </div>
       </main>
+
+      {/* Global Create Deal Modal */}
+      <CreateDealModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={loadDashboardData}
+      />
     </div>
   );
 };

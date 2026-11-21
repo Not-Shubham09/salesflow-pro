@@ -133,7 +133,7 @@ const Login = () => {
       } else {
         setErrors({ general: result?.error || 'Login failed' });
       }
-    } catch {
+    } catch (err) {
       setErrors({ general: 'Failed to sign in with demo credentials' });
     } finally {
       setIsLoading(false);
@@ -152,7 +152,7 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary-50/50 via-background to-background flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-slate-50/70 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         {/* Branding */}
         <div className="text-center mb-6">
@@ -162,22 +162,22 @@ const Login = () => {
           <h1 className="text-2xl font-bold text-text-primary tracking-tight font-heading">
             SalesFlow <span className="text-primary font-bold">Pro</span> CRM
           </h1>
-          <p className="text-sm text-text-secondary mt-1">
-            Sign in to access your sales workspace
+          <p className="text-xs text-text-secondary mt-1">
+            Enterprise sales management & deal pipeline platform
           </p>
         </div>
 
         {/* Demo Mode Notice Banner */}
-        <div className="mb-4 p-3 bg-emerald-50/80 border border-emerald-200/80 rounded-xl text-xs flex items-center justify-between text-emerald-800">
+        <div className="mb-4 p-3 bg-emerald-50/90 border border-emerald-200/90 rounded-xl text-xs flex items-center justify-between text-emerald-800 shadow-xs">
           <div className="flex items-center space-x-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="font-medium">1-Click Demo Mode Active</span>
+            <span className="font-semibold text-[11px]">Presentation Ready</span>
           </div>
-          <span className="text-emerald-700 text-[11px]">Ready for presentation</span>
+          <span className="text-emerald-700 text-[11px]">1-Click Demo Profiles</span>
         </div>
 
         {/* Login Card */}
-        <div className="card p-6 sm:p-8 shadow-md border border-border">
+        <div className="card p-6 sm:p-8 shadow-sm border border-border/90 rounded-2xl">
           <form onSubmit={handleSubmit} className="space-y-4">
             {(errors.general || authError) && (
               <div className="bg-error-50 border border-error-200 rounded-lg p-3 flex items-center space-x-2 text-xs text-error">

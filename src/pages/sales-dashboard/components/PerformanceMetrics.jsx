@@ -92,94 +92,107 @@ const PerformanceMetrics = ({ data: propData }) => {
   }
 
   return (
-    <div className="card p-6">
-      <h2 className="text-xl font-normal text-text-primary mb-6">Performance Metrics</h2>
+    <div className="card p-5 border border-border">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-base font-bold text-text-primary font-heading">Performance Metrics</h2>
+          <p className="text-xs text-text-secondary">Quota attainment and key sales efficiency ratios</p>
+        </div>
+      </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Quota Achievement */}
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg">
+        <div className="bg-slate-50/80 border border-border/80 p-4 rounded-xl hover:border-slate-300 transition-all">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-blue-900">Quota Achievement</h3>
-            <Icon name="Target" size={16} className="text-blue-600" />
+            <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Quota Achievement</h3>
+            <div className="w-7 h-7 rounded-lg bg-primary-50 text-primary flex items-center justify-center">
+              <Icon name="Target" size={14} />
+            </div>
           </div>
           <div className="mb-3">
-            <div className="text-2xl font-bold text-blue-900">
+            <div className="text-2xl font-bold text-text-primary font-heading">
               {data?.percentage || 0}%
             </div>
-            <div className="text-xs text-blue-700">
+            <div className="text-xs text-text-tertiary mt-0.5">
               {formatCurrency(data?.achieved || 0)} of {formatCurrency(data?.quota || 0)}
             </div>
           </div>
-          <div className="w-full bg-blue-200 rounded-full h-2">
+          <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
             <div 
-              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+              className="bg-primary h-1.5 rounded-full transition-all duration-300"
               style={{ width: `${Math.min(data?.percentage || 0, 100)}%` }}
             ></div>
           </div>
         </div>
 
         {/* Deals Won/Lost */}
-        <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg">
+        <div className="bg-slate-50/80 border border-border/80 p-4 rounded-xl hover:border-slate-300 transition-all">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-green-900">Deals Closed</h3>
-            <Icon name="TrendingUp" size={16} className="text-green-600" />
+            <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Deals Closed</h3>
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <Icon name="TrendingUp" size={14} />
+            </div>
           </div>
           <div className="mb-3">
-            <div className="text-2xl font-bold text-green-900">
+            <div className="text-2xl font-bold text-text-primary font-heading">
               {(data?.dealsWon || 0) + (data?.dealsLost || 0)}
             </div>
-            <div className="text-xs text-green-700">
-              {data?.dealsWon || 0} won, {data?.dealsLost || 0} lost
+            <div className="text-xs text-text-tertiary mt-0.5">
+              <span className="text-emerald-700 font-semibold">{data?.dealsWon || 0} won</span> &bull; {data?.dealsLost || 0} lost
             </div>
           </div>
-          <div className="flex space-x-1">
+          <div className="flex space-x-1 h-1.5 bg-slate-200 rounded-full overflow-hidden">
             <div 
-              className="bg-green-600 h-2 rounded-full"
+              className="bg-emerald-500 h-full"
               style={{ width: `${((data?.dealsWon || 0) / Math.max((data?.dealsWon || 0) + (data?.dealsLost || 0), 1)) * 100}%` }}
             ></div>
             <div 
-              className="bg-red-400 h-2 rounded-full"
+              className="bg-rose-400 h-full"
               style={{ width: `${((data?.dealsLost || 0) / Math.max((data?.dealsWon || 0) + (data?.dealsLost || 0), 1)) * 100}%` }}
             ></div>
           </div>
         </div>
 
         {/* Average Deal Size */}
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg">
+        <div className="bg-slate-50/80 border border-border/80 p-4 rounded-xl hover:border-slate-300 transition-all">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-purple-900">Avg Deal Size</h3>
-            <Icon name="DollarSign" size={16} className="text-purple-600" />
+            <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Avg Deal Size</h3>
+            <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <Icon name="DollarSign" size={14} />
+            </div>
           </div>
           <div className="mb-3">
-            <div className="text-2xl font-bold text-purple-900">
+            <div className="text-2xl font-bold text-text-primary font-heading">
               {formatCurrency(data?.avgDealSize || 0)}
             </div>
-            <div className="text-xs text-purple-700">
-              Active pipeline: {formatCurrency(data?.activePipeline || 0)}
+            <div className="text-xs text-text-tertiary mt-0.5">
+              Pipeline: {formatCurrency(data?.activePipeline || 0)}
             </div>
           </div>
-          <div className="text-xs text-purple-700">
-            {data?.activeDealCount || 0} active deals
+          <div className="text-[11px] text-text-secondary font-medium">
+            {data?.activeDealCount || 0} active opportunities
           </div>
         </div>
 
         {/* Conversion Rate */}
-        <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-lg">
+        <div className="bg-slate-50/80 border border-border/80 p-4 rounded-xl hover:border-slate-300 transition-all">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-sm font-medium text-orange-900">Conversion Rate</h3>
-            <Icon name="BarChart3" size={16} className="text-orange-600" />
+            <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Conversion Rate</h3>
+            <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+              <Icon name="BarChart3" size={14} />
+            </div>
           </div>
           <div className="mb-3">
-            <div className="text-2xl font-bold text-orange-900">
+            <div className="text-2xl font-bold text-text-primary font-heading">
               {data?.conversionRate || 0}%
             </div>
-            <div className="text-xs text-orange-700">
+            <div className="text-xs text-text-tertiary mt-0.5">
               Win rate from closed deals
             </div>
           </div>
-          <div className="w-full bg-orange-200 rounded-full h-2">
+          <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
             <div 
-              className="bg-orange-600 h-2 rounded-full transition-all duration-300"
+              className="bg-amber-500 h-1.5 rounded-full transition-all duration-300"
               style={{ width: `${Math.min(data?.conversionRate || 0, 100)}%` }}
             ></div>
           </div>
@@ -187,12 +200,16 @@ const PerformanceMetrics = ({ data: propData }) => {
       </div>
 
       {/* Performance Insights */}
-      <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-        <h4 className="text-sm font-medium text-gray-900 mb-2">Performance Insights</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div>
-            <span className="text-gray-600">Quota Progress:</span>
-            <span className={`ml-2 font-medium ${getPerformanceColor(data?.percentage || 0)}`}>
+      <div className="mt-5 p-4 bg-slate-50/70 border border-border/70 rounded-xl">
+        <h4 className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-2">Performance Summary</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+          <div className="flex items-center">
+            <span className="text-text-secondary">Quota Progress:</span>
+            <span className={`ml-2 font-semibold px-2 py-0.5 rounded-full ${
+              data?.percentage >= 90 ? 'bg-emerald-50 text-emerald-700' :
+              data?.percentage >= 70 ? 'bg-blue-50 text-blue-700' :
+              data?.percentage >= 50 ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700'
+            }`}>
               {data?.percentage >= 90 ? 'Excellent' : 
                data?.percentage >= 70 ? 'On Track' : 
                data?.percentage >= 50 ? 'Needs Attention' : 'Below Target'}
